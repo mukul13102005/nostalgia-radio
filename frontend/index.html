@@ -4,15 +4,188 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nostalgia Radio — Har Mood Ka Apna Gaana</title>
-<meta name="description" content="Ek theme, ek playlist, ek adda — construction site se corporate desk tak, har mood ke liye apna radio.">
+<meta name="description" content="Ek theme, ek playlist, ek adda — har mood ke liye apna radio.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📻</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+
+<style>
+:root{
+  --bg:#0d0d12; --bg2:#16151d; --card:#1c1b24; --card2:#23212d;
+  --text:#f3f1ec; --muted:#a9a4b3; --line:rgba(255,255,255,0.09);
+  --accent-c:#ffb703;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'Poppins',sans-serif;
+  min-height:100vh; overflow-x:hidden;
+}
+.dev{ font-family:'Noto Sans Devanagari','Poppins',sans-serif; }
+.topbar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; gap:8px;
+  padding:12px 14px; backdrop-filter:blur(10px);
+  background:rgba(10,10,14,0.6); border-bottom:1px solid var(--line);
+}
+.brand{margin-right:auto; font-weight:800; font-size:15px; display:flex; align-items:center; gap:8px;}
+.brand span.tag{font-size:10px; font-weight:600; background:var(--accent-c); color:#1a1300; padding:2px 8px; border-radius:999px;}
+.icon-btn{
+  width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--card);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; color:var(--text);
+}
+.theme-dd-wrap{ position:relative; padding:10px 14px 0; max-width:640px; margin:0 auto; }
+.theme-dd-btn{
+  width:100%; display:flex; align-items:center; gap:10px;
+  padding:12px 14px; border-radius:14px; border:1px solid var(--line); background:var(--card);
+  cursor:pointer; color:var(--text); font-weight:700; font-size:14px;
+}
+.theme-dd-btn .ic{font-size:19px;}
+.theme-dd-btn .lbl{flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.theme-dd-btn .chev{transition:transform .2s ease; opacity:.6;}
+.theme-dd-btn.open .chev{transform:rotate(180deg);}
+.theme-dd-list{
+  position:absolute; left:14px; right:14px; top:calc(100% + 4px); z-index:60;
+  background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+  box-shadow:0 18px 40px rgba(0,0,0,.45); display:none; max-height:70vh; overflow-y:auto;
+}
+.theme-dd-list.open{display:block;}
+.theme-dd-item{
+  display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; font-size:13.5px; font-weight:600;
+  border-bottom:1px solid var(--line);
+}
+.theme-dd-item:last-child{border-bottom:none;}
+.theme-dd-item:hover{ background:var(--card2); }
+.theme-dd-item.active{ color:var(--accent-c); }
+.theme-dd-item .ic{font-size:17px;}
+.theme-dd-item .tag2{margin-left:auto; font-size:10.5px; color:var(--muted); font-weight:500;}
+.hero{
+  position:relative; padding:36px 20px 26px; text-align:center; overflow:hidden;
+  transition:background .5s ease; border-bottom:1px solid var(--line);
+}
+.hero-inner{position:relative; z-index:2;}
+.hero-illust{ max-width:280px; margin:0 auto 4px; filter:drop-shadow(0 10px 22px rgba(0,0,0,.4)); }
+.hero-illust svg{ width:100%; height:auto; display:block; }
+.hero h1{
+  margin:0 0 6px; font-size:clamp(26px,7vw,40px); line-height:1.1; font-weight:900;
+  color:#fff; text-shadow:0 3px 18px rgba(0,0,0,.35);
+}
+.hero p.tagline{
+  margin:0 auto; max-width:480px; font-size:13.5px; color:#fff; opacity:.85; font-weight:500;
+}
+.player-wrap{padding:16px 16px 4px;}
+.player{
+  max-width:640px; margin:-20px auto 0; position:relative; z-index:3;
+  background:var(--card); border:1px solid var(--line); border-radius:18px;
+  padding:14px 16px; display:flex; align-items:center; gap:12px;
+  box-shadow:0 18px 40px rgba(0,0,0,.35);
+}
+.art{
+  width:50px; height:50px; border-radius:12px; flex:0 0 auto;
+  background:var(--accent-c); display:flex; align-items:center; justify-content:center; font-size:22px;
+}
+.meta{flex:1; min-width:0;}
+.meta .t{font-weight:700; font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.meta .s{font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.ctrls{display:flex; align-items:center; gap:6px; flex:0 0 auto;}
+.cbtn{
+  width:32px; height:32px; border-radius:50%; border:1px solid var(--line); background:var(--card2);
+  color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px;
+}
+.cbtn.play{width:38px; height:38px; background:var(--accent-c); color:#141018; font-size:15px;}
+.scroll-hint{ text-align:center; padding:10px 0 4px; font-size:11px; color:var(--muted); letter-spacing:.5px;}
+.scroll-hint span{display:inline-block; animation:bob 1.6s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(4px);}}
+.section{max-width:640px; margin:22px auto; padding:0 16px;}
+.section h2{font-size:16px; margin:0 0 10px; font-weight:800;}
+.track{
+  display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:12px;
+  background:var(--card); border:1px solid var(--line); margin-bottom:7px; cursor:pointer;
+}
+.track.playing{border-color:var(--accent-c); box-shadow:0 0 0 1px var(--accent-c) inset;}
+.track .n{width:22px; text-align:center; color:var(--muted); font-size:12px; font-weight:700;}
+.track .info{flex:1; min-width:0;}
+.track .info .tt{font-weight:600; font-size:13.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.track .info .aa{font-size:11px; color:var(--muted);}
+.track .play-ic{font-size:13px; color:var(--muted);}
+.quote-card{
+  background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 16px;
+  font-size:13px; font-style:italic; margin-bottom:8px;
+}
+.quote-card .who{display:block; margin-top:4px; font-style:normal; font-size:10.5px; opacity:.65; font-weight:700;}
+.about-card{
+  background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px;
+  font-size:13px; line-height:1.7; color:var(--muted);
+}
+.about-card b{color:var(--text);}
+.footer{text-align:center; padding:26px 16px 50px; font-size:11px; color:var(--muted);}
+.footer b{color:var(--text);}
+.fab{
+  position:fixed; bottom:20px; right:18px; z-index:80;
+  width:56px; height:56px; border-radius:50%; background:var(--accent-c); color:#141018;
+  display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer;
+  box-shadow:0 10px 26px rgba(0,0,0,.4); border:none;
+}
+.fab .badge{
+  position:absolute; top:-4px; right:-4px; background:#ff4d4d; color:#fff; font-size:10px; font-weight:800;
+  padding:2px 6px; border-radius:999px; display:none;
+}
+.drawer-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:90;
+  display:none; align-items:flex-end; justify-content:center;
+}
+.drawer-overlay.open{display:flex;}
+.chat-drawer{
+  width:100%; max-width:640px; background:var(--card); border-radius:22px 22px 0 0;
+  border:1px solid var(--line); border-bottom:none; height:78vh; display:flex; flex-direction:column;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;}}
+.chat-head{
+  display:flex; align-items:center; justify-content:space-between; padding:14px 16px;
+  border-bottom:1px solid var(--line); font-weight:700; font-size:14px;
+}
+.chat-head .live{display:flex; align-items:center; gap:6px; font-size:11px; color:#3ddc74; font-weight:700;}
+.chat-head .dot{width:6px;height:6px;border-radius:50%;background:#3ddc74;}
+.chat-head .close-x{cursor:pointer; font-size:20px; color:var(--muted); padding:4px 8px;}
+#msgs{flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:8px;}
+.msg{max-width:80%; padding:8px 12px; border-radius:14px; font-size:13px; background:var(--card2); align-self:flex-start;}
+.msg.me{align-self:flex-end; background:var(--accent-c); color:#141018;}
+.msg .nm{font-size:10.5px; font-weight:800; opacity:.7; display:block; margin-bottom:2px;}
+.chat-input{display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--line);}
+.chat-input input{
+  flex:1; background:var(--bg2); border:1px solid var(--line); border-radius:999px; padding:11px 14px;
+  color:var(--text); font-size:13px; outline:none;
+}
+.chat-input button{
+  background:var(--accent-c); border:none; color:#141018; font-weight:800; border-radius:999px;
+  padding:0 16px; cursor:pointer; font-size:13px;
+}
+.chat-empty{color:var(--muted); font-size:12.5px; text-align:center; margin-top:40px;}
+.chat-mode-note{font-size:10.5px; color:var(--muted); text-align:center; padding:6px 14px 0;}
+.name-modal{
+  position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center;
+  z-index:100; padding:20px;
+}
+.name-card{
+  background:var(--card); border:1px solid var(--line); border-radius:18px; padding:22px; max-width:320px; width:100%;
+  text-align:center;
+}
+.name-card h3{margin:0 0 6px; font-size:16px;}
+.name-card p{margin:0 0 14px; font-size:12.5px; color:var(--muted);}
+.name-card input{
+  width:100%; padding:11px 14px; border-radius:12px; border:1px solid var(--line); background:var(--bg2);
+  color:var(--text); font-size:14px; margin-bottom:12px; outline:none; text-align:center;
+}
+.name-card button{
+  width:100%; padding:11px; border-radius:12px; border:none; background:var(--accent-c); color:#141018;
+  font-weight:800; font-size:14px; cursor:pointer;
+}
+</style>
 </head>
 <body>
 
-<!-- ============ NAME MODAL (first visit only) ============ -->
 <div class="name-modal" id="nameModal">
   <div class="name-card">
     <h3 class="dev">Chat mein kya naam dikhe?</h3>
@@ -22,14 +195,12 @@
   </div>
 </div>
 
-<!-- ============ TOPBAR ============ -->
 <div class="topbar">
   <div class="brand">📻 Nostalgia<span class="tag dev">Radio</span></div>
   <div class="icon-btn" id="aboutBtn" onclick="scrollToAbout()" title="About">ℹ️</div>
   <div class="icon-btn" onclick="openNameModal()" title="Naam badlo">👤</div>
 </div>
 
-<!-- ============ THEME DROPDOWN ============ -->
 <div class="theme-dd-wrap">
   <div class="theme-dd-btn dev" id="ddBtn" onclick="toggleDropdown()">
     <span class="ic" id="ddIcon">📻</span>
@@ -39,7 +210,6 @@
   <div class="theme-dd-list" id="ddList"></div>
 </div>
 
-<!-- ============ FIRST SCREEN: HERO + PLAYER (clean, nothing else) ============ -->
 <div class="hero" id="hero">
   <div class="hero-inner">
     <div class="hero-illust" id="heroIllust"></div>
@@ -65,7 +235,6 @@
 
 <div class="scroll-hint dev"><span>↓</span> niche scroll karo — playlist aur about</div>
 
-<!-- ============ BELOW THE FOLD: PLAYLIST ============ -->
 <div class="section">
   <h2 class="dev">🎶 Playlist <span id="trackCount" style="font-weight:500;font-size:12px;color:var(--muted);"></span></h2>
   <div id="playlist"></div>
@@ -76,32 +245,27 @@
   <div id="quotesWrap"></div>
 </div>
 
-<!-- ============ ABOUT (reveals on scroll, or via ℹ️ button) ============ -->
 <div class="section" id="about">
   <h2 class="dev">ℹ️ About Nostalgia Radio</h2>
   <div class="about-card dev">
     <b>Nostalgia Radio</b> ek multi-theme ambient radio website hai — har theme ka apna mood, apna playlist,
-    aur apna live chat adda hota hai. Construction site ke Raju Mistri se lekar corporate cubicle tak,
-    shaadi ki baraat se lekar highway ke bus driver tak — har vibe ka apna ghar hai yahan.<br><br>
-    🎵 Gaane YouTube ke official embedded player ke through stream hote hain — is site par kuch bhi host nahi hota,
-    saare rights unke asli owners (labels, composers, performers) ke paas rehte hain.<br><br>
+    aur apna live chat adda hota hai.<br><br>
+    🎵 Gaane YouTube ke official embedded player ke through stream hote hain.<br><br>
     💬 Live chat mein jo bhi is waqt yahi theme sun raha hai, uske saath baat kar sakte ho.<br><br>
-    Made with ❤️ — apna khud ka radio banaana chahte ho? Is project ka poora code free hai, README dekho.
+    Made with ❤️
   </div>
 </div>
 
 <div class="footer dev">
   <b>Nostalgia Radio</b> — Har theme, apna gaana, apna adda.<br>
-  Audio streams via YouTube · Contact: hello@example.com
+  Audio streams via YouTube
 </div>
 
-<!-- ============ FLOATING CHAT BUTTON ============ -->
 <button class="fab" id="chatFab" onclick="openChat()">
   💬
   <span class="badge" id="chatBadge">•</span>
 </button>
 
-<!-- ============ CHAT DRAWER (hidden until opened) ============ -->
 <div class="drawer-overlay" id="chatOverlay" onclick="if(event.target===this)closeChat()">
   <div class="chat-drawer">
     <div class="chat-head">
@@ -120,12 +284,549 @@
   </div>
 </div>
 
-<!-- YouTube search-embed player (hidden, loaded when a track is played) -->
 <div id="ytHolder" style="position:fixed;bottom:-1000px;left:-1000px;width:1px;height:1px;overflow:hidden;"></div>
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-<script src="js/data.js"></script>
-<script src="js/config.js"></script>
-<script src="js/app.js"></script>
+
+<script>
+// ==================== THEMES DATA ====================
+const THEMES = [
+  {
+    id:"rajumistri", icon:"🧱", title:"राजू मिस्त्री Playlist",
+    tag:"Construction Site Songs — Bhavan Nirman Ke Suroor",
+    accent:"#ffb703",
+    heroBg:"linear-gradient(160deg,#3a2a12,#6b3d12 55%,#8a4a12)",
+    quotes:[["Sahab, kal aake plaster maar denge, aaj gaana bajne do!","Thekedar"],["Aadhi deewar khadi hai, poora dard baj raha hai.","Mazdoor"]],
+    tracks:[
+      {t:"Mujhse Mohabbat Ka Izhar Karta",a:"90s Ke Gaane"},
+      {t:"Ek Ladki Ko Dekha",a:"Kishore Kumar Era"},
+      {t:"Tujhe Dekha To Ye Jaana",a:"Bhavan Nirman Suroor"},
+      {t:"Ho Gaya Hai Tujhko",a:"Mazdoor Classics"},
+      {t:"Pehla Nasha",a:"90s Ke Gaane"},
+      {t:"Deewana Hua Badal",a:"Kishore Kumar Era"},
+      {t:"Kal Ho Naa Ho",a:"Bhavan Nirman Suroor"},
+      {t:"Tumse Milke Dil Ka",a:"Mazdoor Classics"},
+      {t:"Gerua",a:"90s Ke Gaane"},
+      {t:"Sadda Haq",a:"Site Josh Anthem"},
+      {t:"Zinda",a:"Mazdoor Classics"},
+      {t:"Bezubaan",a:"Bhavan Nirman Suroor"},
+      {t:"Nagada Sang Dhol",a:"Site Josh Anthem"},
+      {t:"Chaiyya Chaiyya",a:"Mazdoor Classics"},
+      {t:"Radha Kaise Na Jale",a:"90s Ke Gaane"},
+      {t:"Mauja Hi Mauja",a:"Site Josh Anthem"},
+      {t:"Emosanal Attyachar",a:"Mazdoor Classics"},
+      {t:"Auja Re",a:"Bhavan Nirman Suroor"},
+      {t:"Kajra Re",a:"90s Ke Gaane"},
+      {t:"Chak De Phatte",a:"Site Josh Anthem"}
+    ],
+    svg:'<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="150" width="300" height="50" fill="#5c3413"/><rect x="40" y="120" width="34" height="30" fill="#c46a2b"/><rect x="78" y="120" width="34" height="30" fill="#a85423"/><rect x="40" y="90" width="34" height="26" fill="#a85423"/><rect x="78" y="90" width="34" height="26" fill="#c46a2b"/><rect x="180" y="30" width="10" height="130" fill="#3a2a12"/><rect x="140" y="20" width="80" height="10" fill="#3a2a12"/><rect x="205" y="15" width="8" height="40" fill="#ffb703"/><circle cx="150" cy="95" r="24" fill="#ffcf8f"/><rect x="128" y="115" width="44" height="46" rx="8" fill="#c46a2b"/><rect x="118" y="150" width="18" height="8" fill="#ffcf8f"/><rect x="160" y="150" width="30" height="8" fill="#8a8f96"/></svg>'
+  },
+  {
+    id:"papa", icon:"📻", title:"पापा के ज़माने के गाने",
+    tag:"Purane Gaane, Non-Stop — Kishore, Rafi, Lata",
+    accent:"#e0a63b",
+    heroBg:"linear-gradient(160deg,#2c1a10,#4a2c14 55%,#6e4319)",
+    quotes:[["Mere zamane mein aisa nahi tha.","Papa"],["Paise ped pe nahi ugte.","Papa"]],
+    tracks:[
+      {t:"Roop Tera Mastana",a:"Kishore Kumar Era"},
+      {t:"Mere Sapno Ki Rani",a:"Kishore Kumar Era"},
+      {t:"Chura Liya Hai Tumne",a:"Retro Bollywood"},
+      {t:"Ye Sham Mastani",a:"Kishore Kumar Era"},
+      {t:"Zindagi Ek Safar Hai Suhana",a:"Andaz Classics"},
+      {t:"Pal Pal Dil Ke Paas",a:"Retro Romance"},
+      {t:"Mere Naina Sawan Bhado",a:"Mehbooba Era"},
+      {t:"Kabhi Kabhie Mere Dil Mein",a:"Rafi Classics"},
+      {t:"Yeh Dosti Hum Nahi Todenge",a:"Sholay Era"},
+      {t:"Chingari Koi Bhadke",a:"Amar Prem"},
+      {t:"Aane Wala Pal",a:"Kishore Kumar Era"},
+      {t:"Mere Dil Mein Aaj Kya Hai",a:"Daag Classics"},
+      {t:"Gulabi Aankhen",a:"Rafi Classics"},
+      {t:"Jai Jai Shiv Shankar",a:"Aap Ki Kasam"},
+      {t:"Dil Aisa Kisi Ne Mera Toda",a:"Amanush Era"},
+      {t:"O Mere Dil Ke Chain",a:"Mere Jeevan Saathi"},
+      {t:"Ek Ajnabee Haseena Se",a:"Ajnabee Classics"},
+      {t:"Rimjhim Gire Sawan",a:"Manzil Era"},
+      {t:"Tere Bina Zindagi Se",a:"Aandhi Classics"},
+      {t:"Mehbooba Mehbooba",a:"Sholay Era"}
+    ],
+    svg:'<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"><rect x="60" y="120" width="180" height="60" rx="10" fill="#8a5a22"/><rect x="70" y="130" width="160" height="20" rx="4" fill="#5c3a12"/><circle cx="95" cy="160" r="10" fill="#3a230b"/><circle cx="205" cy="160" r="10" fill="#3a230b"/><rect x="140" y="95" width="20" height="30" fill="#e0a63b"/><circle cx="90" cy="70" r="26" fill="#ffcf8f"/><circle cx="210" cy="75" r="24" fill="#ffcf8f"/></svg>'
+  },
+  {
+    id:"bhojpuri", icon:"🐃", title:"भोजपुरी Bangers",
+    tag:"Bhojpuri & Bihari Hits — DJ Remix Non-Stop",
+    accent:"#ffcf3a",
+    heroBg:"linear-gradient(160deg,#2c1707,#5c2f0c 55%,#8a4a12)",
+    quotes:[["Raja ji ke dilwa mein, hamar bate kaja.","Sadiya"],["Aara hile chhapra hile, ballia hilela.","Local"]],
+    tracks:[
+      {t:"Lollipop Lagelu",a:"Bhojpuri Classic"},
+      {t:"Tohare Se Pyar Ho Gail",a:"Bihari Bangers"},
+      {t:"Saiyaan Superstar",a:"2010s Ka Swag"},
+      {t:"Ae Raja",a:"Bhojpuri Hits"},
+      {t:"Sun Mera Khiladi",a:"Bhojpuri DJ Remix"},
+      {t:"Jawani Ke Jahaj",a:"Village Fair Anthem"},
+      {t:"Hey Chhaliya",a:"Baraat Special"},
+      {t:"Rangdaari",a:"Bhojpuri Bangers"},
+      {t:"Nathuniya",a:"Bihari Bangers"},
+      {t:"Balma",a:"Bhojpuri Classic"},
+      {t:"Bhatar Ke Deewani",a:"Bhojpuri Hits"},
+      {t:"Chhaliya Balamua",a:"DJ Tractor Mix"},
+      {t:"Hamar Dhak Dhak",a:"Bhojpuri Bangers"},
+      {t:"Dupatta Tera",a:"Village Fair Anthem"},
+      {t:"Rasgulla",a:"Bhojpuri DJ Remix"},
+      {t:"Patli Kamariya",a:"Bihari Bangers"},
+      {t:"Odhaniya",a:"Bhojpuri Classic"},
+      {t:"Chumma De De",a:"Baraat Special"},
+      {t:"Bhojpuri Tadka",a:"Bhojpuri Bangers"},
+      {t:"Kacchi Kaliya",a:"2010s Ka Swag"}
+    ],
+    svg:'<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="140" width="260" height="50" rx="8" fill="#7a3f10"/><circle cx="150" cy="90" r="46" fill="#2a1c12"/><path d="M110 60 L90 25 M190 60 L210 25" stroke="#2a1c12" stroke-width="10" stroke-linecap="round"/><rect x="118" y="80" width="64" height="18" rx="4" fill="#ffcf3a"/></svg>'
+  },
+  {
+    id:"corporate", icon:"💻", title:"Corporate Majdoor",
+    tag:"9 to 5 Ki Majdoori — Overtime Playlist",
+    accent:"#5aa9ff",
+    heroBg:"linear-gradient(160deg,#141a2c,#1e2740 55%,#233258)",
+    quotes:[["Boss aaya, fake work laga lo!","Anonymous"],["Deadline kal thi, aaj bhi hai, kal bhi rahegi.","PM"]],
+    tracks:[
+      {t:"Kabira",a:"Lo-fi Office Mix"},
+      {t:"Tum Hi Ho",a:"Deep Work Flow"},
+      {t:"Channa Mereya",a:"Focus Chill Mix"},
+      {t:"Phir Le Aya Dil",a:"Lo-fi Office Mix"},
+      {t:"Agar Tum Saath Ho",a:"Deep Work Flow"},
+      {t:"Tera Yaar Hoon Main",a:"Focus Chill Mix"},
+      {t:"Ae Dil Hai Mushkil",a:"Overtime Playlist"},
+      {t:"Ilahi",a:"Lo-fi Office Mix"},
+      {t:"Zara Zara",a:"Deep Work Flow"},
+      {t:"Tujhe Kitna Chahne Lage",a:"Focus Chill Mix"},
+      {t:"Raabta",a:"Overtime Playlist"},
+  t:"Kaise Hua",a:"Lo-fi Office Mix"},
+      {t:"Khairiyat",a:"Deep Work Flow"},
+      {t:"Tum Se Hi",a:"Focus Chill Mix"},
+      {t:"Pee Loon",a:"Overtime Playlist"},
+      {t:"Iktara",a:"Lo-fi Office Mix"},
+      {t:"Kun Faya Kun",a:"Deep Work Flow"},
+      {t:"Manwa Laage",a:"Focus Chill Mix"},
+      {t:"Nadaan Parinde",a:"Overtime Playlist"},
+      {t:"Ae Zindagi Gale Laga Le",a:"Lo-fi Office Mix"}
+    ],
+    svg:'<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="120" width="220" height="12" fill="#3a4a70"/><rect x="60" y="132" width="60" height="40" fill="#22304f"/><rect x="66" y="138" width="48" height="26" fill="#5aa9ff"/><circle cx="180" cy="95" r="24" fill="#ffcf8f"/><rect x="158" y="115" width="44" height="40" rx="10" fill="#5aa9ff"/><rect x="210" y="140" width="34" height="30" fill="#22304f"/></svg>'
+  },
+  {
+    id:"bartan", icon:"🍽️", title:"बर्तन Time",
+    tag:"Kitchen-Chore Nostalgia, Rebuilt In Sound",
+    accent:"#ff8fa3",
+    heroBg:"linear-gradient(160deg,#2b1114,#4a1c22 55%,#6e2632)",
+    quotes:[["Amma bol rahi hai jaldi bartan dho warna TV band kar degi!","Ghar Ki Chhoti"]],
+    tracks:[
+      {t:"Tumhare Hi Rahenge Hum",a:"From Stree"},
+      {t:"Ghar More Pardesiya",a:"Golden Hour Mix"},
+      {t:"Ambarsariya",a:"Sink-Side Playlist"},
+      {t:"Piya Tose Naina Laage",a:"Golden Hour Mix"},
+      {t:"Sawaar Loon",a:"Sink-Side Playlist"},
+      {t:"Ghoomar",a:"Golden Hour Mix"},
+      {t:"Kaun Tujhe",a:"Sink-Side Playlist"},
+      {t:"Tera Ban Jaunga",a:"Golden Hour Mix"},
+      {t:"Yeh Ishq Hai",a:"Sink-Side Playlist"},
+      {t:"Barso Re",a:"Golden Hour Mix"},
+      {t:"Tu Jo Mila",a:"Sink-Side Playlist"},
+      {t:"Sun Raha Hai Na Tu",a:"Golden Hour Mix"},
+      {t:"Mora Piya",a:"Sink-Side Playlist"},
+      {t:"Tera Chehra",a:"Golden Hour Mix"},
+      {t:"Dholna",a:"Sink-Side Playlist"},
+      {t:"Jiya Jale",a:"Golden Hour Mix"},
+      {t:"Kabhi Neem Neem",a:"Sink-Side Playlist"},
+      {t:"Bahara",a:"Golden Hour Mix"},
+      {t:"Khamoshiyan",a:"Sink-Side Playlist"},
+      {t:"Ranjha",a:"Golden Hour Mix"}
+    ],
+    svg:'<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"><rect x="50" y="130" width="200" height="50" rx="10" fill="#7a2c38"/><ellipse cx="150" cy="130" rx="70" ry="14" fill="#ff8fa3"/><circle cx="190" cy="70" r="24" fill="#ffcf8f"/><rect x="168" y="90" width="44" height="48" rx="14" fill="#6e2632"/></svg>'
+  },
+  {
+    id:"busdriver", icon:"🚌", title:"बस ड्राइवर",
+    tag:"The Highway Raat Playlist — All Night On NH48",
+    accent:"#ff6b35",
+    heroBg:"linear-gradient(160deg,#1a0f06,#3a1f0c 55%,#5c2f0c)",
+    quotes:[["Horn OK Please, peeche se aa raha hoon!","Driver"],["Dhaba pe chai rukwa lo, gaana chalta rahega.","Khalasi"]],
+    tracks:[
+      {t:"Tu Jo Hans Hans Ke Sanam",a:"Highway Raat FM"},
+      {t:"Yamla Pagla Deewana",a:"Truck Wala Gaane"},
+      {t:"Dhoom Machale",a:"Highway Raat FM"},
+      {t:"Dilbar",a:"Truck Wala Gaane"},
+      {t:"Kar Har Maidaan Fateh",a:"Highway Raat FM"},
+      {t:"Zinda Hoon Yaar",a:"Truck Wala Gaane"},
+      {t:"Duniya",a:"Highway Raat FM"},
+      {t:"Bharat Humko Jaan Se Pyaara Hai",a:"NH48 Classics"},
+      {t:"O Sathi Re",a:"Highway Raat FM"},
+      {t:"Ruk Ja O Dil Deewane",a:"Truck Wala Gaane"},
+      {t:"Yeh Dosti",a:"NH48 Classics"},
+      {t:"Saathiya",a:"Highway Raat FM"},
+      {t:"Dhadkan",a:"Truck Wala Gaane"},
+      {t:"Mere Yaar Ki Shaadi Hai",a:"NH48 Classics"},
+      {t:"Ye Jawani Hai Deewani",a:"Highway Raat FM"},
+      {t:"Chhod Aaye Hum",a:"Truck Wala Gaane"},
+      {t:"Har Ek Friend Zaroori Hota Hai",a:"NH48 Classics"},
+      {t:"Yaaron Dosti",a:"Highway Raat FM"},
+      {t:"Zindagi Ek Safar",a:"Truck Wala Gaane"},
+      {t:"Musafir Hoon Yaaron",a:"NH48 Classics"}
+    ],
+    svg:'<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="160" width="300" height="30" fill="#1a120a"/><rect x="30" y="90" width="220" height="70" rx="14" fill="#ff6b35"/><rect x="45" y="100" width="40" height="30" rx="4" fill="#ffe9d6"/><rect x="95" y="100" width="40" height="30" rx="4" fill="#ffe9d6"/><rect x="145" y="100" width="40" height="30" rx="4" fill="#ffe9d6"/><circle cx="80" cy="168" r="16" fill="#1a120a"/><circle cx="200" cy="168" r="16" fill="#1a120a"/></svg>'
+  },
+  {
+    id:"baraat", icon:"💃", title:"शादी की बाराथ",
+    tag:"Shaadi Baraat Non-Stop — Naach Gaana Anthem",
+    accent:"#d63384",
+    heroBg:"linear-gradient(160deg,#2c0f1e,#4a1830 55%,#6e2350)",
+    quotes:[["Dulhe raja ki baraat aa gayi, dhol bajao!","Baraati"],["Pehle naach lo, khana baad mein.","Chacha"]],
+    tracks:[
+      {t:"London Thumakda",a:"Shaadi Baraat Non-Stop"},
+      {t:"Kala Chashma",a:"Dance Floor Baraat"},
+      {t:"Nagada Sang Dhol",a:"Shaadi Baraat Non-Stop"},
+      {t:"Badri Ki Dulhania",a:"Dance Floor Baraat"},
+      {t:"Dholida",a:"Shaadi Baraat Non-Stop"},
+      {t:"Mehendi Laga Ke Rakhna",a:"Dance Floor Baraat"},
+      {t:"Aaj Mera Jee Karda",a:"Shaadi Baraat Non-Stop"},
+      {t:"Banno Tera Swagger",a:"Dance Floor Baraat"},
+      {t:"Ainvayi Ainvayi",a:"Shaadi Baraat Non-Stop"},
+      {t:"Sadi Gali",a:"Dance Floor Baraat"},
+      {t:"Gallan Goodiyaan",a:"Shaadi Baraat Non-Stop"},
+      {t:"Prem Ratan Dhan Payo",a:"Dance Floor Baraat"},
+      {t:"Chittiyaan Kalaiyaan",a:"Shaadi Baraat Non-Stop"},
+      {t:"Tootey Khilone",a:"Dance Floor Baraat"},
+      {t:"Shubhaarambh",a:"Shaadi Baraat Non-Stop"},
+      {t:"Radha",a:"Dance Floor Baraat"},
+      {t:"Dilliwali Girlfriend",a:"Shaadi Baraat Non-Stop"},
+      {t:"Vaari Vaari",a:"Dance Floor Baraat"},
+      {t:"Meri Zindagi Mein Aaye Ho",a:"Shaadi Baraat Non-Stop"},
+      {t:"Var Ni Bindani",a:"Dance Floor Baraat"}
+    ],
+    svg:'<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"><circle cx="150" cy="80" r="30" fill="#ffcf8f"/><path d="M120 65 Q150 30 180 65 Z" fill="#d63384"/><rect x="120" y="105" width="60" height="60" rx="16" fill="#d63384"/><circle cx="90" cy="100" r="18" fill="#ffcf8f"/><rect x="72" y="118" width="36" height="46" rx="12" fill="#ffcf3a"/><circle cx="210" cy="100" r="18" fill="#ffcf8f"/><rect x="192" y="118" width="36" height="46" rx="12" fill="#ffcf3a"/></svg>'
+  },
+  {
+    id:"gully", icon:"🏏", title:"गली क्रिकेट Josh",
+    tag:"Mohalla Cricket & Josh Anthem Playlist",
+    accent:"#2ecc71",
+    heroBg:"linear-gradient(160deg,#0e2a1a,#164a2c 55%,#1c6a3d)",
+    quotes:[["Over gaya, ab gaana chalao!","Captain"],["Chauka lage ya na lage, gaana toh chalega.","Umpire"]],
+    tracks:[
+      {t:"Chak De India",a:"Josh Anthem Mix"},
+      {t:"Lakshya Title Track",a:"Sports Josh"},
+      {t:"Jai Ho",a:"Josh Anthem Mix"},
+      {t:"Josh Josh",a:"Sports Josh"},
+      {t:"Sultan Title Track",a:"Josh Anthem Mix"},
+      {t:"Maula Mere Maula",a:"Sports Josh"},
+      {t:"Bhaag Milkha Bhaag",a:"Josh Anthem Mix"},
+      {t:"Race Ka Baaja",a:"Sports Josh"},
+      {t:"Sapney",a:"Josh Anthem Mix"},
+      {t:"Dhaakad",a:"Sports Josh"},
+      {t:"Apna Time Aayega",a:"Josh Anthem Mix"},
+      {t:"Azadi",a:"Sports Josh"},
+      {t:"Tu Hi Toh Hai",a:"Josh Anthem Mix"},
+      {t:"Mitti Di Khushboo",a:"Sports Josh"},
+      {t:"Vande Mataram",a:"Josh Anthem Mix"},
+      {t:"Ziddi Dil",a:"Sports Josh"},
+      {t:"Aashayein",a:"Josh Anthem Mix"},
+      {t:"Dhan Te Nan",a:"Sports Josh"},
+      {t:"Malhari",a:"Josh Anthem Mix"},
+      {t:"Bulleya",a:"Sports Josh"}
+    ],
+    svg:'<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="170" width="300" height="20" fill="#2ecc71" opacity="0.3"/><rect x="145" y="60" width="10" height="90" fill="#caa472"/><circle cx="150" cy="45" r="10" fill="#fff"/><circle cx="90" cy="110" r="20" fill="#ffcf8f"/><rect x="75" y="128" width="30" height="40" rx="10" fill="#2ecc71"/><circle cx="220" cy="120" r="18" fill="#ffcf8f"/><rect x="205" y="136" width="30" height="36" rx="10" fill="#1a4a2e"/></svg>'
+  }
+];
+
+// ==================== BACKEND URL ====================
+// ⚠️ यहाँ अपना Render URL डालो:
+window.BACKEND_URL = "https://nostalgia-radio-s994.onrender.com";
+
+// ==================== STATE ====================
+let currentThemeId = localStorage.getItem("theme_choice") || THEMES[0].id;
+let currentTrackIdx = 0;
+let isPlaying = false;
+let myName = localStorage.getItem("radio_name") || "";
+
+function theme(){ return THEMES.find(t=>t.id===currentThemeId); }
+
+// ==================== THEME DROPDOWN ====================
+function renderThemeDropdown(){
+  const list = document.getElementById("ddList");
+  list.innerHTML = "";
+  THEMES.forEach(t=>{
+    const el = document.createElement("div");
+    el.className = "theme-dd-item dev" + (t.id===currentThemeId ? " active":"");
+    el.innerHTML = `<span class="ic">${t.icon}</span>${t.title}<span class="tag2">${t.tracks.length} gaane</span>`;
+    el.onclick = ()=>{ switchTheme(t.id); closeDropdown(); };
+    list.appendChild(el);
+  });
+  const t = theme();
+  document.getElementById("ddIcon").textContent = t.icon;
+  document.getElementById("ddLabel").textContent = t.title;
+}
+function toggleDropdown(){
+  document.getElementById("ddBtn").classList.toggle("open");
+  document.getElementById("ddList").classList.toggle("open");
+}
+function closeDropdown(){
+  document.getElementById("ddBtn").classList.remove("open");
+  document.getElementById("ddList").classList.remove("open");
+}
+document.addEventListener("click", (e)=>{
+  const wrap = document.querySelector(".theme-dd-wrap");
+  if(wrap && !wrap.contains(e.target)) closeDropdown();
+});
+
+function switchTheme(id){
+  currentThemeId = id;
+  localStorage.setItem("theme_choice", id);
+  currentTrackIdx = 0;
+  stopPlayback();
+  applyTheme();
+  renderThemeDropdown();
+  joinRoom();
+}
+
+// ==================== HERO / PLAYLIST / QUOTES ====================
+function applyTheme(){
+  const t = theme();
+  document.documentElement.style.setProperty("--accent-c", t.accent);
+  document.getElementById("hero").style.background = t.heroBg;
+  document.getElementById("heroIllust").innerHTML = t.svg || "";
+  document.getElementById("heroTitle").textContent = t.title;
+  document.getElementById("heroTag").textContent = t.tag;
+  document.getElementById("ddIcon").textContent = t.icon;
+  document.getElementById("ddLabel").textContent = t.title;
+  document.getElementById("chatThemeName").textContent = t.title;
+  document.getElementById("trackCount").textContent = "(" + t.tracks.length + " gaane)";
+  renderPlaylist();
+  renderQuotes();
+  loadTrackMeta();
+}
+
+function renderPlaylist(){
+  const t = theme();
+  const wrap = document.getElementById("playlist");
+  wrap.innerHTML = "";
+  t.tracks.forEach((tr,i)=>{
+    const el = document.createElement("div");
+    el.className = "track" + (i===currentTrackIdx ? " playing":"");
+    el.innerHTML = `<div class="n">${i+1}</div>
+      <div class="info"><div class="tt">${tr.t}</div><div class="aa">${tr.a}</div></div>
+      <div class="play-ic">${i===currentTrackIdx && isPlaying ? "▶":"—"}</div>`;
+    el.onclick = ()=>{ currentTrackIdx = i; isPlaying = true; loadTrackMeta(); playCurrent(); renderPlaylist(); };
+    wrap.appendChild(el);
+  });
+}
+
+function renderQuotes(){
+  const t = theme();
+  const wrap = document.getElementById("quotesWrap");
+  wrap.innerHTML = "";
+  (t.quotes || []).forEach(q=>{
+    const el = document.createElement("div");
+    el.className = "quote-card dev";
+    el.innerHTML = `"${q[0]}"<span class="who">— ${q[1]}</span>`;
+    wrap.appendChild(el);
+  });
+}
+
+function loadTrackMeta(){
+  const t = theme();
+  const tr = t.tracks[currentTrackIdx];
+  document.getElementById("trackTitle").textContent = tr.t;
+  document.getElementById("trackSub").textContent = tr.a;
+  document.getElementById("art").style.background = t.accent;
+}
+
+// ==================== PLAYER ====================
+function playCurrent(){
+  const t = theme();
+  const tr = t.tracks[currentTrackIdx];
+  const holder = document.getElementById("ytHolder");
+  let src;
+  if(tr.yt){
+    src = `https://www.youtube.com/embed/${tr.yt}?autoplay=1&playsinline=1`;
+  } else {
+    const q = encodeURIComponent(tr.t + " " + tr.a + " song");
+    src = `https://www.youtube.com/embed?listType=search&list=${q}&autoplay=1&playsinline=1`;
+  }
+  holder.innerHTML = `<iframe width="1" height="1" src="${src}" frameborder="0"
+    allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+  isPlaying = true;
+  document.getElementById("playBtn").textContent = "⏸";
+  renderPlaylist();
+}
+function stopPlayback(){
+  document.getElementById("ytHolder").innerHTML = "";
+  isPlaying = false;
+  document.getElementById("playBtn").textContent = "▶";
+}
+function togglePlay(){
+  if(isPlaying){ stopPlayback(); } else { playCurrent(); }
+}
+function nextTrack(){
+  const t = theme();
+  currentTrackIdx = (currentTrackIdx+1) % t.tracks.length;
+  loadTrackMeta(); renderPlaylist();
+  if(isPlaying) playCurrent();
+}
+function prevTrack(){
+  const t = theme();
+  currentTrackIdx = (currentTrackIdx-1+t.tracks.length) % t.tracks.length;
+  loadTrackMeta(); renderPlaylist();
+  if(isPlaying) playCurrent();
+}
+
+// ==================== ABOUT ====================
+function scrollToAbout(){
+  document.getElementById("about").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+// ==================== NAME MODAL ====================
+function openNameModal(){ document.getElementById("nameModal").style.display = "flex"; }
+function setName(){
+  const v = document.getElementById("nameInput").value.trim();
+  if(!v) return;
+  myName = v.slice(0,18);
+  localStorage.setItem("radio_name", myName);
+  document.getElementById("nameModal").style.display = "none";
+  joinRoom();
+}
+if(myName){
+  document.getElementById("nameModal").style.display = "none";
+} else {
+  myName = "Guest" + Math.floor(Math.random()*9000+1000);
+}
+
+// ==================== CHAT DRAWER ====================
+function openChat(){
+  document.getElementById("chatOverlay").classList.add("open");
+  document.getElementById("chatBadge").style.display = "none";
+}
+function closeChat(){
+  document.getElementById("chatOverlay").classList.remove("open");
+}
+
+// ==================== BACKEND ====================
+let socket = null;
+let socketReady = false;
+let demoPseudoOnline = 100 + Math.floor(Math.random()*900);
+
+function initBackend(){
+  const url = (window.BACKEND_URL || "").trim();
+  if(url && window.io){
+    try{
+      socket = io(url, { transports: ["websocket", "polling"] });
+
+      socket.on("connect", ()=>{
+        socketReady = true;
+        setModeNote(true);
+        joinRoom();
+      });
+      socket.on("disconnect", ()=>{
+        socketReady = false;
+        setModeNote(false);
+      });
+      socket.on("connect_error", ()=>{
+        socketReady = false;
+        setModeNote(false);
+      });
+      socket.on("history", (arr)=> renderMsgs(arr || []));
+      socket.on("chat message", (msg)=> appendMsg(msg));
+      socket.on("online", (count)=>{
+        document.getElementById("onlineCount").textContent = Math.max(count, 1);
+      });
+    }catch(e){
+      console.warn("Socket connection failed, using demo mode.", e);
+      socketReady = false;
+      setModeNote(false);
+    }
+  } else {
+    setModeNote(false);
+  }
+  if(!socketReady){
+    document.getElementById("onlineCount").textContent = demoPseudoOnline;
+    loadChat();
+  }
+}
+
+function setModeNote(connected){
+  document.getElementById("chatModeNote").textContent = connected
+    ? "🟢 Real live chat — sab visitors ek saath"
+    : "🟡 Demo mode — sirf tumhare browser tak";
+}
+
+function joinRoom(){
+  if(socketReady && socket){
+    socket.emit("join", { theme: currentThemeId, name: myName });
+  } else {
+    loadChat();
+  }
+}
+
+setInterval(()=>{
+  if(!socketReady){
+    demoPseudoOnline += Math.floor(Math.random()*7) - 3;
+    if(demoPseudoOnline < 40) demoPseudoOnline = 40;
+    const el = document.getElementById("onlineCount");
+    if(el) el.textContent = demoPseudoOnline;
+  }
+}, 4000);
+
+function loadChat(){
+  if(socketReady) return;
+  const arr = JSON.parse(localStorage.getItem("demo_chat_" + currentThemeId) || "[]");
+  renderMsgs(arr);
+}
+
+function renderMsgs(arr){
+  const msgsEl = document.getElementById("msgs");
+  msgsEl.innerHTML = "";
+  if(!arr.length){
+    msgsEl.innerHTML = '<div class="chat-empty">Sabse pehle message tum bhejo!</div>';
+    return;
+  }
+  arr.forEach(appendMsg);
+}
+
+function appendMsg(m){
+  const msgsEl = document.getElementById("msgs");
+  const empty = msgsEl.querySelector(".chat-empty");
+  if(empty) empty.remove();
+  const mine = m.name === myName;
+  const el = document.createElement("div");
+  el.className = "msg" + (mine ? " me":"");
+  el.innerHTML = `<span class="nm">${mine?"Tum":escapeHtml(m.name||"Guest")}</span>${escapeHtml(m.text||"")}`;
+  msgsEl.appendChild(el);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+}
+
+function escapeHtml(s){
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function sendMsg(){
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = "";
+  const msg = { name: myName, text: text, ts: Date.now() };
+
+  if(socketReady && socket){
+    socket.emit("chat message", { theme: currentThemeId, name: myName, text: text });
+  } else {
+    const key = "demo_chat_" + currentThemeId;
+    const arr = JSON.parse(localStorage.getItem(key) || "[]");
+    arr.push(msg);
+    while(arr.length > 80) arr.shift();
+    localStorage.setItem(key, JSON.stringify(arr));
+    appendMsg(msg);
+  }
+}
+
+// ==================== INIT ====================
+renderThemeDropdown();
+applyTheme();
+initBackend();
+</script>
 </body>
 </html>
