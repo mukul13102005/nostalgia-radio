@@ -11,4 +11,4 @@
   Wahi URL neeche paste kar do — save karo, Vercel par push/redeploy
   karo, aur REAL live chat + real online-count sabke liye chalu ho jayega.
 */
-window.BACKEND_URL = "";
+window.BACKEND_URL = "https://nostalgia-radio-s994.onrender.com";
