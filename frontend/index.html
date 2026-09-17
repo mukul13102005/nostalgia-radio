@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nostalgia Radio — Har Mood Ka Apna Gaana</title>
+<meta name="description" content="Ek theme, ek playlist, ek adda — construction site se corporate desk tak, har mood ke liye apna radio.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📻</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ NAME MODAL (first visit only) ============ -->
+<div class="name-modal" id="nameModal">
+  <div class="name-card">
+    <h3 class="dev">Chat mein kya naam dikhe?</h3>
+    <p>Yeh naam sabko live chat mein dikhega.</p>
+    <input id="nameInput" maxlength="18" placeholder="Apna naam likho...">
+    <button onclick="setName()">Radio Join Karo</button>
+  </div>
+</div>
+
+<!-- ============ TOPBAR ============ -->
+<div class="topbar">
+  <div class="brand">📻 Nostalgia<span class="tag dev">Radio</span></div>
+  <div class="icon-btn" id="aboutBtn" onclick="scrollToAbout()" title="About">ℹ️</div>
+  <div class="icon-btn" onclick="openNameModal()" title="Naam badlo">👤</div>
+</div>
+
+<!-- ============ THEME DROPDOWN ============ -->
+<div class="theme-dd-wrap">
+  <div class="theme-dd-btn dev" id="ddBtn" onclick="toggleDropdown()">
+    <span class="ic" id="ddIcon">📻</span>
+    <span class="lbl" id="ddLabel">Theme Change Karo</span>
+    <span class="chev">▾</span>
+  </div>
+  <div class="theme-dd-list" id="ddList"></div>
+</div>
+
+<!-- ============ FIRST SCREEN: HERO + PLAYER (clean, nothing else) ============ -->
+<div class="hero" id="hero">
+  <div class="hero-inner">
+    <div class="hero-illust" id="heroIllust"></div>
+    <h1 class="dev" id="heroTitle">—</h1>
+    <p class="tagline dev" id="heroTag">—</p>
+  </div>
+</div>
+
+<div class="player-wrap">
+  <div class="player">
+    <div class="art" id="art">🎵</div>
+    <div class="meta">
+      <div class="t" id="trackTitle">Track</div>
+      <div class="s" id="trackSub">Artist</div>
+    </div>
+    <div class="ctrls">
+      <div class="cbtn" onclick="prevTrack()">⏮</div>
+      <div class="cbtn play" id="playBtn" onclick="togglePlay()">▶</div>
+      <div class="cbtn" onclick="nextTrack()">⏭</div>
+    </div>
+  </div>
+</div>
+
+<div class="scroll-hint dev"><span>↓</span> niche scroll karo — playlist aur about</div>
+
+<!-- ============ BELOW THE FOLD: PLAYLIST ============ -->
+<div class="section">
+  <h2 class="dev">🎶 Playlist <span id="trackCount" style="font-weight:500;font-size:12px;color:var(--muted);"></span></h2>
+  <div id="playlist"></div>
+</div>
+
+<div class="section">
+  <h2 class="dev">💬 Quotes</h2>
+  <div id="quotesWrap"></div>
+</div>
+
+<!-- ============ ABOUT (reveals on scroll, or via ℹ️ button) ============ -->
+<div class="section" id="about">
+  <h2 class="dev">ℹ️ About Nostalgia Radio</h2>
+  <div class="about-card dev">
+    <b>Nostalgia Radio</b> ek multi-theme ambient radio website hai — har theme ka apna mood, apna playlist,
+    aur apna live chat adda hota hai. Construction site ke Raju Mistri se lekar corporate cubicle tak,
+    shaadi ki baraat se lekar highway ke bus driver tak — har vibe ka apna ghar hai yahan.<br><br>
+    🎵 Gaane YouTube ke official embedded player ke through stream hote hain — is site par kuch bhi host nahi hota,
+    saare rights unke asli owners (labels, composers, performers) ke paas rehte hain.<br><br>
+    💬 Live chat mein jo bhi is waqt yahi theme sun raha hai, uske saath baat kar sakte ho.<br><br>
+    Made with ❤️ — apna khud ka radio banaana chahte ho? Is project ka poora code free hai, README dekho.
+  </div>
+</div>
+
+<div class="footer dev">
+  <b>Nostalgia Radio</b> — Har theme, apna gaana, apna adda.<br>
+  Audio streams via YouTube · Contact: hello@example.com
+</div>
+
+<!-- ============ FLOATING CHAT BUTTON ============ -->
+<button class="fab" id="chatFab" onclick="openChat()">
+  💬
+  <span class="badge" id="chatBadge">•</span>
+</button>
+
+<!-- ============ CHAT DRAWER (hidden until opened) ============ -->
+<div class="drawer-overlay" id="chatOverlay" onclick="if(event.target===this)closeChat()">
+  <div class="chat-drawer">
+    <div class="chat-head">
+      <span class="dev">💬 <span id="chatThemeName">—</span></span>
+      <span style="display:flex;align-items:center;gap:12px;">
+        <span class="live"><span class="dot"></span><span id="onlineCount">1</span> online</span>
+        <span class="close-x" onclick="closeChat()">✕</span>
+      </span>
+    </div>
+    <div id="msgs"><div class="chat-empty">Chat load ho raha hai...</div></div>
+    <div class="chat-mode-note dev" id="chatModeNote"></div>
+    <div class="chat-input">
+      <input id="chatInput" placeholder="Message likho..." maxlength="200" onkeydown="if(event.key==='Enter')sendMsg()">
+      <button onclick="sendMsg()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- YouTube search-embed player (hidden, loaded when a track is played) -->
+<div id="ytHolder" style="position:fixed;bottom:-1000px;left:-1000px;width:1px;height:1px;overflow:hidden;"></div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
