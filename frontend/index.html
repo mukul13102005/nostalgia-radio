@@ -1408,7 +1408,7 @@ let socket = null;
 let socketReady = false;
 
 function initBackend(){
-  const url = (window.BACKEND_URL || "").trim();
+  const url = (window.BACKEND_URL || "https://nostalgia-radio-s994.onrender.com/").trim();
   if(url && window.io){
     try{
       socket = io(url, { transports: ["websocket", "polling"] });
