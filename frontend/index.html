@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Nostalgia Radio — Har Mood Ka Apna Gaana</title>
+<meta name="description" content="Ek theme, ek playlist, ek adda — live radio + live chat, sabke liye.">
+<meta property="og:title" content="Nostalgia Radio — Har Mood Ka Apna Gaana">
+<meta property="og:description" content="Apna theme chuno, gaana bajao, live chat karo — ya apna private room banao.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0a0a0e" id="themeColorMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📻</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script>
+/* Real visible-viewport height, kept correct even when the mobile keyboard
+   opens/closes (100vh does not shrink for the keyboard on most browsers,
+   which is what used to push the chat input off-screen). Runs before first
+   paint so there is no layout jump. */
+(function () {
+  function setAppHeight() {
+    var h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+    document.documentElement.style.setProperty("--app-height", h + "px");
+  }
+  setAppHeight();
+  window.addEventListener("resize", setAppHeight);
+  window.addEventListener("orientationchange", setAppHeight);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", setAppHeight);
+    window.visualViewport.addEventListener("scroll", setAppHeight);
+  }
+})();
+</script>
+</head>
+<body>
+
+<div id="appShell">
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="topbar">
+    <div class="brand"><span class="dot-live"></span> Nostalgia Radio</div>
+    <div class="online-pill" id="onlinePill"><span class="pill-dot" id="pillDot"></span><span id="pillLabel">Connecting…</span></div>
+    <button type="button" class="theme-chip" id="themeChip" onclick="openThemeSheet()" title="Theme badlo" aria-label="Theme badlo">🎨</button>
+  </header>
+
+  <!-- ===== SCROLLABLE MAIN AREA ===== -->
+  <main class="app-main" id="appMain">
+
+    <!-- ===== VIEW: PLAYER (default + Playlist tab target) ===== -->
+    <section class="view active" id="view-player">
+      <div class="player-stage" id="stage">
+        <div class="stage-inner">
+          <div class="theme-art" id="themeArt"></div>
+          <div class="disc-wrap">
+            <div class="tonearm" id="tonearm"></div>
+            <div class="disc" id="disc"><div class="hole"></div></div>
+          </div>
+          <h1 class="theme-title" id="themeTitle">—</h1>
+          <p class="theme-tag" id="themeTag">—</p>
+          <p class="track-name" id="trackName">—</p>
+          <p class="status-note" id="statusNote">Play dabao, gaana shuru</p>
+          <div class="transport">
+            <button type="button" class="tbtn" onclick="prevTrack()" aria-label="Peeche">⏮</button>
+            <button type="button" class="tbtn big" id="playBtn" onclick="togglePlay()" aria-label="Play/Pause">▶</button>
+            <button type="button" class="tbtn" onclick="nextTrack()" aria-label="Aage">⏭</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: ABOUT ===== -->
+    <section class="view" id="view-about">
+      <div class="about-wrap">
+        <div class="about-card dev">
+          <h2>Nostalgia Radio kya hai?</h2>
+          <p>Har theme ka apna mood, apna gaana, apna adda. Jo bhi theme chuno — usi ke mood mein gaana bajta rahega, aur usi theme ke logon se live chat bhi kar sakte ho. Chaaho to apna khud ka <b>private room</b> banake sirf apne dost ke saath bhi baat kar sakte ho, gaana chalta rahega background mein.</p>
+        </div>
+        <div class="section-label dev">Is Theme Ke Kisse</div>
+        <div id="quotesWrap"></div>
+
+        <div class="section-label dev">Iske Peeche Kaun Hai?</div>
+        <div class="maker-card">
+          <div class="maker-avatar">MK</div>
+          <h3>Mukul Kumar</h3>
+          <p class="maker-role dev">B.Tech CSE (AI &amp; ML) student jo full-stack products banata hai</p>
+          <p class="maker-bio dev">Ye poori website — live radio, real-time chat, private rooms, sab kuch — maine khud design aur code kiya hai. Agar aapko bhi apne liye ya apne business ke liye aisi hi koi modern, fast aur live website banwani ho, to seedha message karo.</p>
+          <button type="button" class="btn-contact" onclick="contactMe()">💬 Contact Me</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: PROFILE ===== -->
+    <section class="view" id="view-profile">
+      <div class="profile-wrap">
+        <div class="profile-card">
+          <div class="avatar-ring" id="avatarRing">?</div>
+          <h2 id="profileName">Guest</h2>
+          <div class="sub dev">Apna naam set karo taaki chat mein sab pehchaanein</div>
+          <div class="field">
+            <label class="dev" for="profileNameInput">Tumhara Naam</label>
+            <input id="profileNameInput" maxlength="18" placeholder="e.g. Rohit" autocomplete="off">
+          </div>
+          <button type="button" class="btn-primary" onclick="saveProfileName()">Save Karo</button>
+          <div class="profile-stat dev"><span>Current Theme</span><b id="profileTheme">—</b></div>
+          <div class="profile-stat dev"><span>Total Themes</span><b id="profileThemeCount">—</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: CHAT ===== -->
+    <section class="view" id="view-chat">
+      <div class="chat-wrap">
+        <div class="chat-room-bar dev">
+          <span class="live"><span class="dotlive"></span> LIVE</span>
+          <b id="chatRoomLabel">—</b>
+          <button type="button" class="room-btn" onclick="openRoomSheet()">🔒 Private Room</button>
+        </div>
+        <div id="msgs"></div>
+        <div class="chat-input">
+          <input id="chatInput" maxlength="200" placeholder="Message likho..." autocomplete="off" aria-label="Message likho" onkeydown="if(event.key==='Enter')sendMsg()">
+          <button type="button" onclick="sendMsg()">Bhejo</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== CREDIT STRIP (persistent, every page) ===== -->
+  <button type="button" class="credit-strip" onclick="contactMe()">✦ Made by <b>Mukul Kumar</b> — Apna website banwaani ho? Contact karo</button>
+
+  <!-- ===== BOTTOM NAV (4 buttons only) ===== -->
+  <nav class="bottom-nav">
+    <button type="button" class="nav-btn active" id="navPlayer" onclick="switchView('player')"><span class="ic">🎵</span>Playlist</button>
+    <button type="button" class="nav-btn" id="navChat" onclick="switchView('chat')"><span class="ic chat-dot" id="chatDot">💬</span>Chat</button>
+    <button type="button" class="nav-btn" id="navProfile" onclick="switchView('profile')"><span class="ic">👤</span>Profile</button>
+    <button type="button" class="nav-btn" id="navAbout" onclick="switchView('about')"><span class="ic">ℹ️</span>About</button>
+  </nav>
+
+  <!-- toast notifications float above the nav, inside the app frame -->
+  <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+</div>
+
+<!-- ===== THEME PICKER SHEET ===== -->
+<div class="sheet-overlay" id="themeSheet" onclick="if(event.target===this) closeThemeSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3 class="dev">Theme Chuno</h3>
+    <div id="themeList"></div>
+  </div>
+</div>
+
+<!-- ===== PRIVATE ROOM SHEET ===== -->
+<div class="sheet-overlay" id="roomSheet" onclick="if(event.target===this) closeRoomSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3 class="dev">Private Room</h3>
+    <div class="room-card">
+      <p class="dev">Apna khud ka private room banao aur ye code apne dost ko bhejo — sirf wahi log jinke paas ye code hai, is chat ko dekh payenge.</p>
+      <button type="button" class="btn-primary" onclick="createPrivateRoom()">➕ Naya Room Banao</button>
+    </div>
+    <div class="room-card">
+      <p class="dev">Kisi ne room code diya hai? Yahan daalo aur join karo.</p>
+      <div class="room-row">
+        <input id="roomCodeInput" maxlength="6" placeholder="CODE" autocomplete="off" aria-label="Room code">
+        <button type="button" class="btn-primary" style="width:auto; padding:0 18px;" onclick="joinPrivateRoom()">Join</button>
+      </div>
+    </div>
+    <div class="room-card" id="currentRoomCard" style="display:none;">
+      <p class="dev">Abhi is room mein ho:</p>
+      <div class="room-code-display" id="currentRoomLabel">—</div>
+      <div class="room-share-row">
+        <button type="button" class="btn-ghost sm" id="copyRoomBtn" onclick="copyRoomCode()">📋 Copy Code</button>
+        <button type="button" class="btn-ghost sm" id="shareRoomBtn" onclick="shareRoomCode()">🔗 Share</button>
+      </div>
+      <button type="button" class="btn-ghost" onclick="leavePrivateRoom()">⬅ Theme Chat Par Wapas Jao</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NAME MODAL (shown once, first time chat/profile is opened) ===== -->
+<div class="name-modal" id="nameModal">
+  <div class="name-card">
+    <h3 class="dev">👋 Apna naam batao</h3>
+    <p class="dev">Chat mein aur logon ko tumhara naam dikhega.</p>
+    <input id="nameInput" maxlength="18" placeholder="e.g. Rohit" autocomplete="off" aria-label="Tumhara naam" onkeydown="if(event.key==='Enter')setName()">
+    <button type="button" onclick="setName()">Chalo Shuru Karein</button>
+  </div>
+</div>
+
+<!-- hidden YouTube player mount point -->
+<div id="ytPlayer" style="position:fixed; width:1px; height:1px; opacity:0; pointer-events:none; bottom:0; left:0;"></div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
