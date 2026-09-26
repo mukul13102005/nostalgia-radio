@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Nostalgia Radio — Har Mood Ka Apna Gaana</title>
+<meta name="description" content="Ek theme, ek playlist, ek adda — live radio + live chat, sabke liye.">
+<meta property="og:title" content="Nostalgia Radio — Har Mood Ka Apna Gaana">
+<meta property="og:description" content="Apna theme chuno, gaana bajao, live chat karo — ya apna private room banao.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0a0a0e" id="themeColorMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📻</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ===== style.css (original, unchanged) ===== */
+:root{
+  --bg:#0a0a0e; --card:#15141b; --card2:#1d1b25;
+  --text:#f5f3ee; --muted:#948da0; --line:rgba(255,255,255,0.08);
+  --accent-c:#c9a24b; --accent-soft:rgba(201,162,75,.16);
+  --nav-h:64px; --credit-h:30px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'Poppins',sans-serif;
+  min-height:100vh; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:calc(var(--nav-h) + var(--credit-h) + env(safe-area-inset-bottom,0px));
+}
+.dev{ font-family:'Noto Sans Devanagari','Poppins',sans-serif; }
+::selection{ background:var(--accent-c); color:#161108; }
+::-webkit-scrollbar{ width:8px; }
+::-webkit-scrollbar-thumb{ background:var(--card2); border-radius:99px; }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+}
+button{ font-family:inherit; -webkit-tap-highlight-color:transparent; }
+:focus-visible{ outline:2px solid var(--accent-c); outline-offset:2px; border-radius:6px; }
+
+body::before{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:radial-gradient(60vw 40vh at 50% -10%, var(--accent-soft), transparent 60%);
+  transition:background 1s ease;
+}
+
+/* ===== topbar ===== */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; gap:10px;
+  padding:14px 18px; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  background:rgba(10,10,14,0.7); border-bottom:1px solid var(--line);
+}
+.brand{margin-right:auto; font-weight:800; font-size:15px; display:flex; align-items:center; gap:8px;}
+.brand .dot-live{width:7px;height:7px;border-radius:50%;background:#3ddc74; box-shadow:0 0 8px #3ddc74;}
+.online-pill{
+  font-size:11px; font-weight:700; color:var(--muted); display:flex; align-items:center; gap:5px;
+  background:var(--card); border:1px solid var(--line); padding:6px 11px; border-radius:999px;
+}
+.theme-chip{
+  width:36px; height:36px; border-radius:50%; border:1px solid var(--line); background:var(--card);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px;
+  transition:border-color .2s ease, transform .15s ease;
+}
+.theme-chip:hover{ border-color:var(--accent-c); transform:translateY(-1px); }
+
+/* ===== theme picker sheet ===== */
+.sheet-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:95;
+  display:none; align-items:flex-end; justify-content:center;
+}
+.sheet-overlay.open{display:flex; animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.sheet{
+  width:100%; max-width:520px; max-height:78vh; overflow-y:auto;
+  background:var(--card); border:1px solid var(--line); border-bottom:none;
+  border-radius:22px 22px 0 0; padding:8px 0 20px; animation:slideUp .22s cubic-bezier(.2,.8,.3,1);
+}
+@keyframes slideUp{from{transform:translateY(30px); opacity:0;}to{transform:translateY(0); opacity:1;}}
+.sheet-handle{width:36px; height:4px; background:var(--line); border-radius:99px; margin:8px auto 10px;}
+.sheet h3{font-size:14px; margin:0 18px 8px; color:var(--muted); font-weight:700;}
+.theme-opt{
+  display:flex; align-items:center; gap:12px; padding:13px 18px; cursor:pointer;
+  transition:background .15s ease;
+}
+.theme-opt:hover{ background:var(--card2); }
+.theme-opt.active{ background:var(--accent-soft); }
+.theme-opt .ic{font-size:20px;}
+.theme-opt .lbl{flex:1; font-size:14px; font-weight:600;}
+.theme-opt .lbl small{display:block; font-size:11px; color:var(--muted); font-weight:400; margin-top:1px;}
+.theme-opt .chk{color:var(--accent-c); font-size:15px; opacity:0;}
+.theme-opt.active .chk{opacity:1;}
+
+/* ===== views ===== */
+.view{display:none; min-height:calc(100vh - 64px - var(--nav-h) - var(--credit-h)); animation:viewIn .25s ease;}
+.view.active{display:block;}
+@keyframes viewIn{from{opacity:0; transform:translateY(6px);}to{opacity:1; transform:translateY(0);}}
+
+/* ===== PLAYER VIEW — ekdam clean, no track list ever ===== */
+.player-stage{
+  padding:34px 20px 20px; text-align:center; position:relative; overflow:hidden;
+  background:var(--hero-bg); transition:background .6s ease; min-height:60vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.player-stage::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 115%, rgba(0,0,0,.6), transparent 60%);
+}
+.stage-inner{position:relative; z-index:2; width:100%; max-width:360px;}
+.theme-art{
+  width:100%; border-radius:20px; overflow:hidden; background:rgba(0,0,0,.18);
+  box-shadow:0 20px 46px -16px rgba(0,0,0,.6); border:1px solid rgba(255,255,255,.08);
+}
+.theme-art svg{ display:block; width:100%; height:auto; }
+.disc-wrap{ margin-top:-38px; margin-bottom:16px; position:relative; z-index:3; display:flex; justify-content:center; }
+.disc{
+  width:130px; height:130px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.25), transparent 45%), var(--accent-c);
+  display:flex; align-items:center; justify-content:center; font-size:56px;
+  box-shadow:0 14px 34px -8px rgba(0,0,0,.6), 0 0 0 5px var(--bg);
+  transition:background .5s ease, transform .3s ease;
+}
+.disc.spinning{ animation:spin 8s linear infinite; }
+@keyframes spin{ from{transform:rotate(0);} to{transform:rotate(360deg);} }
+.disc .hole{ width:16px; height:16px; border-radius:50%; background:var(--bg); box-shadow:0 0 0 3px rgba(0,0,0,.25) inset; }
+h1.theme-title{
+  margin:0 0 6px; font-size:clamp(22px,6vw,30px); font-weight:900; color:#fff;
+  text-shadow:0 3px 20px rgba(0,0,0,.4);
+}
+.theme-tag{margin:0 auto 26px; max-width:320px; font-size:12.5px; color:#fff; opacity:.82; font-weight:500;}
+.status-note{ font-size:11.5px; color:#fff; opacity:.75; min-height:16px; margin-bottom:18px; font-weight:600; letter-spacing:.3px;}
+
+.eq{ display:inline-flex; align-items:flex-end; gap:3px; height:14px; margin-right:6px; vertical-align:middle; }
+.eq i{ width:3px; background:#fff; border-radius:2px; display:block; animation:eqBounce 1s ease-in-out infinite; }
+.eq i:nth-child(1){ height:40%; animation-delay:-.9s; }
+.eq i:nth-child(2){ height:100%; animation-delay:-.5s; }
+.eq i:nth-child(3){ height:60%; animation-delay:-.2s; }
+@keyframes eqBounce{ 0%,100%{ transform:scaleY(.3); } 50%{ transform:scaleY(1); } }
+
+.transport{ display:flex; align-items:center; justify-content:center; gap:20px; }
+.tbtn{
+  width:50px; height:50px; border-radius:50%; border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.08); color:#fff; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:18px; transition:transform .15s ease, background .2s ease; backdrop-filter:blur(6px);
+}
+.tbtn:hover{ transform:translateY(-1px); background:rgba(255,255,255,.16); }
+.tbtn:active{ transform:scale(.93); }
+.tbtn.big{
+  width:70px; height:70px; font-size:24px; background:var(--accent-c); color:#161108; border:none;
+  box-shadow:0 12px 28px -8px var(--accent-c);
+}
+
+/* ===== ABOUT view ===== */
+.about-wrap{max-width:560px; margin:0 auto; padding:22px 18px 30px;}
+.about-card{
+  background:var(--card); border:1px solid var(--line); border-radius:18px; padding:20px;
+  font-size:13.5px; line-height:1.75; color:var(--muted);
+}
+.about-card b{color:var(--text);}
+.about-card h2{color:var(--text); font-size:17px; margin:0 0 12px;}
+.quote-card{
+  background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px 16px;
+  font-size:13px; font-style:italic; margin-bottom:9px; color:var(--muted);
+}
+.quote-card .who{display:block; margin-top:5px; font-style:normal; font-size:10.5px; opacity:.7; font-weight:700; color:var(--text);}
+.section-label{font-size:12px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); font-weight:700; margin:22px 0 10px;}
+
+.maker-card{
+  background:var(--card); border:1px solid var(--line); border-radius:18px; padding:24px 20px; text-align:center;
+}
+.maker-avatar{
+  width:56px; height:56px; border-radius:50%; margin:0 auto 12px; display:flex; align-items:center; justify-content:center;
+  font-size:18px; font-weight:800; color:#161108; background:var(--accent-c); box-shadow:0 10px 24px -8px var(--accent-c);
+}
+.maker-card h3{ margin:0 0 3px; font-size:16px; }
+.maker-role{ margin:0 0 12px; font-size:11.5px; color:var(--accent-c); font-weight:700; }
+.maker-bio{ margin:0 0 18px; font-size:12.5px; line-height:1.7; color:var(--muted); }
+.btn-contact{
+  width:100%; padding:13px; border-radius:12px; border:none; background:var(--accent-c); color:#161108;
+  font-weight:800; font-size:14px; cursor:pointer;
+}
+
+/* ===== PROFILE view ===== */
+.profile-wrap{max-width:480px; margin:0 auto; padding:28px 18px;}
+.profile-card{
+  background:var(--card); border:1px solid var(--line); border-radius:20px; padding:26px 22px;
+  text-align:center;
+}
+.avatar-ring{
+  width:78px; height:78px; border-radius:50%; margin:0 auto 14px; display:flex; align-items:center;
+  justify-content:center; font-size:28px; font-weight:800; color:#161108;
+  background:var(--accent-c); box-shadow:0 10px 26px -8px var(--accent-c);
+}
+.profile-card h2{margin:0 0 3px; font-size:18px;}
+.profile-card .sub{font-size:12px; color:var(--muted); margin-bottom:20px;}
+.field{ text-align:left; margin-bottom:14px; }
+.field label{ font-size:11.5px; color:var(--muted); font-weight:700; display:block; margin-bottom:6px; }
+.field input{
+  width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--card2);
+  color:var(--text); font-size:14px; outline:none;
+}
+.field input:focus{ border-color:var(--accent-c); }
+.btn-primary{
+  width:100%; padding:13px; border-radius:12px; border:none; background:var(--accent-c); color:#161108;
+  font-weight:800; font-size:14px; cursor:pointer; margin-top:4px;
+}
+.btn-ghost{
+  width:100%; padding:12px; border-radius:12px; border:1px solid var(--line); background:transparent;
+  color:var(--text); font-weight:700; font-size:13px; cursor:pointer; margin-top:10px;
+}
+.profile-stat{
+  display:flex; justify-content:space-between; font-size:12.5px; color:var(--muted);
+  padding:10px 2px; border-top:1px solid var(--line); margin-top:16px;
+}
+.profile-stat b{color:var(--text);}
+
+/* ===== CHAT view ===== */
+.chat-wrap{ display:flex; flex-direction:column; height:calc(100vh - 64px - var(--nav-h) - var(--credit-h)); max-width:560px; margin:0 auto; }
+.chat-room-bar{
+  display:flex; align-items:center; gap:8px; padding:10px 16px; border-bottom:1px solid var(--line);
+  font-size:12px; color:var(--muted); flex-wrap:wrap;
+}
+.chat-room-bar b{color:var(--text); font-size:13px;}
+.chat-room-bar .live{display:flex; align-items:center; gap:5px; color:#3ddc74; font-weight:700;}
+.chat-room-bar .dotlive{width:6px;height:6px;border-radius:50%;background:#3ddc74;}
+.room-btn{
+  margin-left:auto; font-size:11px; font-weight:700; color:var(--accent-c); background:var(--accent-soft);
+  border:1px solid transparent; padding:6px 10px; border-radius:999px; cursor:pointer;
+}
+#msgs{flex:1; overflow-y:auto; padding:14px 16px; display:flex; flex-direction:column; gap:9px;}
+.msg{max-width:78%; padding:9px 13px; border-radius:15px; font-size:13.5px; background:var(--card2); align-self:flex-start; line-height:1.4;}
+.msg.me{align-self:flex-end; background:var(--accent-c); color:#161108;}
+.msg .nm{font-size:10.5px; font-weight:800; opacity:.7; display:block; margin-bottom:2px;}
+.chat-empty{color:var(--muted); font-size:12.5px; text-align:center; margin-top:40px;}
+.chat-input{display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--line); background:var(--bg);}
+.chat-input input{
+  flex:1; background:var(--card2); border:1px solid var(--line); border-radius:999px; padding:12px 15px;
+  color:var(--text); font-size:13.5px; outline:none;
+}
+.chat-input input:focus{ border-color:var(--accent-c); }
+.chat-input button{
+  background:var(--accent-c); border:none; color:#161108; font-weight:800; border-radius:999px;
+  padding:0 18px; cursor:pointer; font-size:13.5px;
+}
+
+/* private room sheet */
+.room-card{ background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:16px; margin:0 18px 14px; }
+.room-card p{ font-size:12px; color:var(--muted); margin:0 0 10px; line-height:1.6; }
+.room-code-display{
+  font-family:monospace; font-size:22px; font-weight:800; letter-spacing:4px; text-align:center;
+  background:var(--bg); border:1px dashed var(--accent-c); border-radius:10px; padding:12px; margin-bottom:10px; color:var(--accent-c);
+}
+.room-row{ display:flex; gap:8px; }
+.room-row input{
+  flex:1; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 12px;
+  color:var(--text); font-size:14px; outline:none; text-transform:uppercase; letter-spacing:2px; text-align:center;
+}
+
+/* ===== name modal ===== */
+.name-modal{
+  position:fixed; inset:0; background:rgba(0,0,0,.65); display:none; align-items:center; justify-content:center;
+  z-index:100; padding:20px;
+}
+.name-modal.open{display:flex;}
+.name-card{
+  background:var(--card); border:1px solid var(--line); border-radius:18px; padding:24px; max-width:320px; width:100%;
+  text-align:center;
+}
+.name-card h3{margin:0 0 6px; font-size:16px;}
+.name-card p{margin:0 0 14px; font-size:12.5px; color:var(--muted);}
+.name-card input{
+  width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--card2);
+  color:var(--text); font-size:14px; margin-bottom:12px; outline:none; text-align:center;
+}
+.name-card button{
+  width:100%; padding:12px; border-radius:12px; border:none; background:var(--accent-c); color:#161108;
+  font-weight:800; font-size:14px; cursor:pointer;
+}
+
+/* ===== credit strip (persistent, every page) ===== */
+.credit-strip{
+  position:fixed; left:0; right:0; bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));
+  z-index:59; height:var(--credit-h); width:100%;
+  display:flex; align-items:center; justify-content:center; gap:4px;
+  background:rgba(10,10,14,0.92); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border:none; border-top:1px solid var(--line);
+  color:var(--muted); font-size:10.5px; font-weight:500; cursor:pointer; padding:0 12px;
+  text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.credit-strip b{ color:var(--accent-c); font-weight:800; }
+@media (min-width:640px){
+  .credit-strip{ max-width:520px; left:50%; transform:translateX(-50%); }
+}
+
+/* ===== bottom nav ===== */
+.bottom-nav{
+  position:fixed; bottom:0; left:0; right:0; z-index:60; height:var(--nav-h);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  background:rgba(10,10,14,0.85); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--line);
+  display:flex; align-items:stretch; justify-content:space-around;
+}
+.nav-btn{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  background:none; border:none; color:var(--muted); cursor:pointer; font-size:10.5px; font-weight:700;
+  transition:color .2s ease;
+}
+.nav-btn .ic{font-size:21px; transition:transform .2s ease;}
+.nav-btn.active{ color:var(--accent-c); }
+.nav-btn.active .ic{ transform:translateY(-2px); }
+.nav-btn .chat-dot{
+  position:relative;
+}
+.nav-btn .chat-dot::after{
+  content:""; position:absolute; top:-2px; right:-4px; width:7px; height:7px; border-radius:50%;
+  background:#ff4d4d; display:none;
+}
+.nav-btn .chat-dot.has-new::after{ display:block; }
+
+@media (min-width:640px){
+  .bottom-nav{ max-width:520px; left:50%; transform:translateX(-50%); border-radius:20px 20px 0 0; border-left:1px solid var(--line); border-right:1px solid var(--line); }
+}
+
+/* ===== fx-anim.css (new motion / VFX layer) ===== */
+/* ================================================================
+   NOSTALGIA RADIO — MOTION / VFX LAYER
+   Purely additive: every rule here extends or reacts to classes
+   the original app.js already toggles (.active, .spinning, .open,
+   .has-new) or to new fx-* hooks added by fx-engine.js. Nothing in
+   this file renames or removes an existing selector, so the base
+   UI in style.css keeps working exactly as before.
+   ================================================================ */
+
+:root{
+  --fx-fast:.18s; --fx-med:.45s; --fx-slow:.9s;
+  --fx-ease:cubic-bezier(.22,.85,.32,1);
+  --fx-glow:0 0 0 rgba(0,0,0,0);
+}
+
+/* ---------- global feel ---------- */
+body{ overflow-x:hidden; }
+body.fx-locked{ overflow:hidden; height:100vh; }
+
+/* subtle cinematic vignette, layered under body::before's glow */
+body::after{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:radial-gradient(120% 85% at 50% 50%, transparent 55%, rgba(0,0,0,.55) 100%);
+}
+
+/* live/online pulses reuse existing dots, no HTML changes */
+.dot-live, .dotlive{ animation:fxLivePulse 1.8s ease-in-out infinite; }
+@keyframes fxLivePulse{
+  0%,100%{ box-shadow:0 0 6px 0 #3ddc74; opacity:1; }
+  50%{ box-shadow:0 0 14px 4px #3ddc74; opacity:.75; }
+}
+.online-pill{ transition:transform var(--fx-fast) var(--fx-ease); }
+.online-pill:active{ transform:scale(.94); }
+
+/* ---------- ambient background: blobs + canvas ---------- */
+.fx-bg-wrap{ position:fixed; inset:0; z-index:-3; overflow:hidden; pointer-events:none; }
+.fx-blob{
+  position:absolute; width:60vmax; height:60vmax; border-radius:50%;
+  background:radial-gradient(circle, var(--accent-c) 0%, transparent 68%);
+  opacity:.16; filter:blur(10px); mix-blend-mode:screen;
+  animation:fxBlobDrift 26s ease-in-out infinite;
+  transition:background 1s ease;
+  will-change:transform;
+}
+.fx-blob.b2{ width:50vmax; height:50vmax; opacity:.12; animation-duration:33s; animation-direction:reverse; }
+.fx-blob.b3{ width:40vmax; height:40vmax; opacity:.10; animation-duration:21s; }
+.fx-blob.b1{ top:-20%; left:-15%; }
+.fx-blob.b2{ bottom:-25%; right:-15%; }
+.fx-blob.b3{ top:35%; left:60%; }
+@keyframes fxBlobDrift{
+  0%{ transform:translate(0,0) scale(1); }
+  33%{ transform:translate(6%,8%) scale(1.12); }
+  66%{ transform:translate(-5%,4%) scale(.94); }
+  100%{ transform:translate(0,0) scale(1); }
+}
+.fx-canvas{ position:fixed; inset:0; z-index:-2; pointer-events:none; }
+
+@media (min-width:640px){
+  .fx-cursor-glow{
+    position:fixed; top:0; left:0; width:340px; height:340px; z-index:5;
+    border-radius:50%; pointer-events:none; mix-blend-mode:screen; opacity:0;
+    background:radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+    transform:translate(-50%,-50%); transition:opacity .3s ease;
+  }
+  .fx-cursor-glow.on{ opacity:1; }
+}
+
+/* ---------- splash / intro sequence (single orchestrated moment) ---------- */
+.fx-splash{
+  position:fixed; inset:0; z-index:99999; background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+  transition:opacity .5s ease, visibility .5s ease;
+}
+.fx-splash.fx-hide{ opacity:0; visibility:hidden; pointer-events:none; }
+.fx-splash-rings{ position:relative; width:120px; height:120px; display:flex; align-items:center; justify-content:center; }
+.fx-splash-rings span{
+  position:absolute; inset:0; border-radius:50%; border:2px solid var(--accent-c); opacity:0;
+  animation:fxRingExpand 2.1s ease-out infinite;
+}
+.fx-splash-rings span:nth-child(2){ animation-delay:.5s; }
+.fx-splash-rings span:nth-child(3){ animation-delay:1s; }
+@keyframes fxRingExpand{
+  0%{ transform:scale(.35); opacity:.85; }
+  100%{ transform:scale(1); opacity:0; }
+}
+.fx-splash-logo{
+  position:relative; font-size:44px; z-index:2;
+  animation:fxSplashPulse 1.4s ease-in-out infinite;
+  filter:drop-shadow(0 0 18px var(--accent-c));
+}
+@keyframes fxSplashPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.12); } }
+.fx-splash-title{
+  font-weight:800; font-size:15px; letter-spacing:.4px; color:var(--text); opacity:.9;
+}
+.fx-splash-bar{ width:140px; height:3px; border-radius:99px; background:var(--card2); overflow:hidden; }
+.fx-splash-bar i{
+  display:block; height:100%; width:0%; background:var(--accent-c); border-radius:99px;
+  animation:fxProgressFill 1.3s var(--fx-ease) forwards;
+}
+@keyframes fxProgressFill{ from{ width:0%; } to{ width:100%; } }
+
+/* ---------- theme-change sweep ---------- */
+.fx-theme-sweep{
+  position:fixed; inset:0; z-index:9000; pointer-events:none; opacity:0;
+  background:radial-gradient(circle at var(--sx,50%) var(--sy,50%), var(--accent-c) 0%, transparent 42%);
+}
+.fx-theme-sweep.fire{ animation:fxSweep .7s var(--fx-ease); }
+@keyframes fxSweep{
+  0%{ opacity:.55; clip-path:circle(0% at var(--sx,50%) var(--sy,50%)); }
+  60%{ opacity:.28; }
+  100%{ opacity:0; clip-path:circle(140% at var(--sx,50%) var(--sy,50%)); }
+}
+
+/* ---------- view transitions (enhances existing .view / .view.active) ---------- */
+.view{ animation:fxViewIn var(--fx-med) var(--fx-ease) both; }
+@keyframes fxViewIn{
+  from{ opacity:0; transform:translateY(10px) scale(.99); filter:blur(4px); }
+  to{ opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
+}
+
+/* ---------- topbar & theme chip polish ---------- */
+.theme-chip{ position:relative; overflow:hidden; }
+.theme-chip:active{ transform:scale(.9) rotate(-8deg); }
+.brand{ position:relative; }
+
+/* ---------- disc / player stage VFX ---------- */
+.player-stage{ isolation:isolate; }
+.theme-art{ transition:transform .25s var(--fx-ease), box-shadow .25s ease; transform-style:preserve-3d; will-change:transform; }
+.theme-art:hover{ box-shadow:0 26px 60px -18px rgba(0,0,0,.7); }
+.disc{ position:relative; transition:box-shadow .4s ease, transform .3s var(--fx-ease); }
+.disc::after{
+  content:""; position:absolute; inset:-10px; border-radius:50%; pointer-events:none;
+  background:conic-gradient(from 0deg, transparent 0 20%, rgba(255,255,255,.55) 27%, transparent 34% 100%);
+  opacity:0; mix-blend-mode:overlay;
+}
+.disc.spinning{ box-shadow:0 14px 34px -8px rgba(0,0,0,.6), 0 0 0 5px var(--bg), 0 0 34px 4px var(--accent-soft); animation:spin 8s linear infinite, fxDiscGlow 2.4s ease-in-out infinite; }
+.disc.spinning::after{ opacity:1; animation:fxRingRotate 3s linear infinite; }
+@keyframes fxDiscGlow{
+  0%,100%{ box-shadow:0 14px 34px -8px rgba(0,0,0,.6), 0 0 0 5px var(--bg), 0 0 26px 2px var(--accent-soft); }
+  50%{ box-shadow:0 14px 34px -8px rgba(0,0,0,.6), 0 0 0 5px var(--bg), 0 0 46px 10px var(--accent-soft); }
+}
+@keyframes fxRingRotate{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+.disc-wrap{ animation:fxDiscEnter .6s var(--fx-ease) both; }
+@keyframes fxDiscEnter{ from{ opacity:0; transform:translateY(14px) scale(.85); } to{ opacity:1; transform:translateY(0) scale(1); } }
+
+h1.theme-title{
+  background:linear-gradient(100deg, #fff 30%, var(--accent-c) 50%, #fff 70%);
+  background-size:220% auto; -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; animation:fxShimmer 5s linear infinite;
+}
+@keyframes fxShimmer{ to{ background-position:-220% center; } }
+
+/* mini waveform visualiser under the transport */
+.wave-bar{ display:flex; align-items:flex-end; justify-content:center; gap:3px; height:22px; margin-top:18px; opacity:.55; transition:opacity .3s ease; }
+.wave-bar span{ width:3px; height:20%; border-radius:2px; background:#fff; opacity:.7; }
+.wave-bar.playing{ opacity:1; }
+.wave-bar.playing span{ animation:fxWaveBar 1.1s ease-in-out infinite; background:var(--accent-c); }
+@keyframes fxWaveBar{ 0%,100%{ height:15%; } 50%{ height:100%; } }
+
+/* eq: extra glow to match new palette */
+.eq i{ box-shadow:0 0 6px rgba(255,255,255,.5); }
+
+/* transport buttons: press + ripple-ready */
+.tbtn, .nav-btn, .btn-primary, .btn-ghost, .btn-contact, .room-btn, .chat-input button,
+.theme-opt, .name-card button, .credit-strip{ position:relative; overflow:hidden; }
+.tbtn.big{ animation:fxBigBtnIdle 3.2s ease-in-out infinite; }
+@keyframes fxBigBtnIdle{ 0%,100%{ box-shadow:0 12px 28px -8px var(--accent-c); } 50%{ box-shadow:0 12px 38px -6px var(--accent-c); } }
+.ripple-span{
+  position:absolute; border-radius:50%; transform:scale(0); pointer-events:none;
+  background:rgba(255,255,255,.45); animation:fxRipple .6s ease-out forwards;
+}
+.btn-primary .ripple-span, .btn-contact .ripple-span{ background:rgba(0,0,0,.25); }
+@keyframes fxRipple{ to{ transform:scale(2.6); opacity:0; } }
+
+/* ---------- bottom nav indicator ---------- */
+.bottom-nav{ position:fixed; }
+.nav-indicator{
+  position:absolute; top:8px; bottom:8px; border-radius:14px; background:var(--accent-soft);
+  pointer-events:none; z-index:0; transition:transform .35s var(--fx-ease), width .35s var(--fx-ease), opacity .2s ease;
+  opacity:0;
+}
+.nav-indicator.on{ opacity:1; }
+.nav-btn{ z-index:1; }
+.nav-btn .ic{ transition:transform .3s var(--fx-ease); }
+.nav-btn.active .ic{ animation:fxIconPop .35s var(--fx-ease); }
+@keyframes fxIconPop{ 0%{ transform:translateY(0) scale(1); } 40%{ transform:translateY(-6px) scale(1.25); } 100%{ transform:translateY(-2px) scale(1); } }
+.chat-dot.has-new{ animation:fxDotJiggle .5s ease; }
+@keyframes fxDotJiggle{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-14deg); } 75%{ transform:rotate(14deg); } }
+
+/* ---------- sheets / modals ---------- */
+.sheet{ animation:fxSheetPop .35s var(--fx-ease); }
+@keyframes fxSheetPop{ from{ transform:translateY(40px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
+.sheet-handle{ transition:background .2s ease; }
+.sheet-overlay.open .sheet-handle{ animation:fxHandleGlow 1.6s ease-in-out infinite; }
+@keyframes fxHandleGlow{ 0%,100%{ background:var(--line); } 50%{ background:var(--accent-c); } }
+#themeList .theme-opt{ animation:fxStaggerIn .35s var(--fx-ease) both; }
+#themeList .theme-opt:nth-child(1){ animation-delay:.02s; } #themeList .theme-opt:nth-child(2){ animation-delay:.06s; }
+#themeList .theme-opt:nth-child(3){ animation-delay:.10s; } #themeList .theme-opt:nth-child(4){ animation-delay:.14s; }
+#themeList .theme-opt:nth-child(5){ animation-delay:.18s; } #themeList .theme-opt:nth-child(6){ animation-delay:.22s; }
+#themeList .theme-opt:nth-child(7){ animation-delay:.26s; } #themeList .theme-opt:nth-child(8){ animation-delay:.30s; }
+#themeList .theme-opt:nth-child(n+9){ animation-delay:.34s; }
+@keyframes fxStaggerIn{ from{ opacity:0; transform:translateX(-10px); } to{ opacity:1; transform:translateX(0); } }
+.theme-opt.active{ box-shadow:inset 3px 0 0 var(--accent-c); }
+.theme-opt .chk{ transition:opacity .2s ease, transform .25s var(--fx-ease); transform:scale(0); }
+.theme-opt.active .chk{ transform:scale(1); }
+.name-modal.open .name-card{ animation:fxSheetPop .3s var(--fx-ease); }
+
+/* ---------- chat ---------- */
+.msg{ animation:fxMsgIn .3s var(--fx-ease) both; }
+@keyframes fxMsgIn{ from{ opacity:0; transform:translateY(8px) scale(.97); } to{ opacity:1; transform:translateY(0) scale(1); } }
+.msg.me{ box-shadow:0 6px 18px -8px var(--accent-c); }
+.chat-input input:focus{ box-shadow:0 0 0 3px var(--accent-soft); }
+.chat-input button:active{ transform:scale(.93); }
+.chat-room-bar .live .dotlive{ animation:fxLivePulse 1.8s ease-in-out infinite; }
+
+/* ---------- about page reveal ---------- */
+.about-wrap > *, #quotesWrap .quote-card{ opacity:0; transform:translateY(14px); }
+#view-about.fx-revealed .about-wrap > *,
+#view-about.fx-revealed #quotesWrap .quote-card{
+  animation:fxCardReveal .55s var(--fx-ease) both;
+}
+#view-about.fx-revealed .about-wrap > *:nth-child(1){ animation-delay:.02s; }
+#view-about.fx-revealed .about-wrap > *:nth-child(2){ animation-delay:.10s; }
+#view-about.fx-revealed .about-wrap > *:nth-child(3){ animation-delay:.18s; }
+#view-about.fx-revealed .about-wrap > *:nth-child(4){ animation-delay:.26s; }
+#view-about.fx-revealed .about-wrap > *:nth-child(5){ animation-delay:.34s; }
+#view-about.fx-revealed #quotesWrap .quote-card:nth-child(1){ animation-delay:.16s; }
+#view-about.fx-revealed #quotesWrap .quote-card:nth-child(2){ animation-delay:.22s; }
+#view-about.fx-revealed #quotesWrap .quote-card:nth-child(3){ animation-delay:.28s; }
+@keyframes fxCardReveal{ to{ opacity:1; transform:translateY(0); } }
+.maker-card{ position:relative; overflow:hidden; }
+.maker-card::before{
+  content:""; position:absolute; top:0; left:-60%; width:40%; height:100%;
+  background:linear-gradient(100deg, transparent, rgba(255,255,255,.10), transparent);
+  transform:skewX(-20deg); animation:fxSheen 5s ease-in-out infinite;
+}
+@keyframes fxSheen{ 0%{ left:-60%; } 35%,100%{ left:130%; } }
+.maker-avatar{ transition:transform .3s var(--fx-ease); }
+.maker-card:hover .maker-avatar{ transform:scale(1.08) rotate(-4deg); }
+
+/* ---------- profile ---------- */
+.avatar-ring{ transition:box-shadow .4s ease; animation:fxAvatarGlow 3s ease-in-out infinite; }
+@keyframes fxAvatarGlow{ 0%,100%{ box-shadow:0 10px 26px -8px var(--accent-c); } 50%{ box-shadow:0 10px 38px -4px var(--accent-c); } }
+.field input:focus{ box-shadow:0 0 0 3px var(--accent-soft); }
+.btn-primary:active, .btn-ghost:active{ transform:scale(.97); }
+
+/* ---------- card lift micro-interaction (about/room cards) ---------- */
+.about-card, .quote-card, .room-card{ transition:transform .25s var(--fx-ease), box-shadow .25s ease; }
+.about-card:hover, .room-card:hover{ transform:translateY(-2px); box-shadow:0 14px 30px -16px rgba(0,0,0,.7); }
+
+/* ---------- confetti / spark particles ---------- */
+.fx-spark{
+  position:fixed; z-index:9500; border-radius:50%; pointer-events:none;
+  animation:fxSparkFly var(--dur,900ms) ease-out forwards;
+}
+@keyframes fxSparkFly{
+  from{ transform:translate(0,0) scale(1); opacity:1; }
+  to{ transform:translate(var(--dx),var(--dy)) scale(0); opacity:0; }
+}
+
+/* ---------- scrollbar ---------- */
+::-webkit-scrollbar-thumb{ background:linear-gradient(var(--accent-c), var(--card2)); }
+
+/* ---------- credit strip shimmer ---------- */
+.credit-strip::before{
+  content:""; position:absolute; inset:0; opacity:.5;
+  background:linear-gradient(100deg, transparent 40%, var(--accent-soft) 50%, transparent 60%);
+  background-size:200% 100%; animation:fxCreditShine 6s linear infinite;
+}
+@keyframes fxCreditShine{ from{ background-position:200% 0; } to{ background-position:-200% 0; } }
+
+/* ---------- reduced motion: silence the extras, keep the app usable ---------- */
+@media (prefers-reduced-motion: reduce){
+  .fx-blob, .fx-canvas, .fx-cursor-glow, .disc.spinning, .disc.spinning::after,
+  .wave-bar.playing span, h1.theme-title, .maker-card::before, .credit-strip::before,
+  .tbtn.big, .avatar-ring, .fx-splash-rings span, .fx-splash-logo{ animation:none !important; }
+  .fx-splash{ transition:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== FX: intro splash (single orchestrated load sequence) ===== -->
+<div class="fx-splash" id="fxSplash" aria-hidden="true">
+  <div class="fx-splash-rings"><span></span><span></span><span></span></div>
+  <div class="fx-splash-logo">📻</div>
+  <div class="fx-splash-title">Nostalgia Radio</div>
+  <div class="fx-splash-bar"><i id="fxSplashProgress"></i></div>
+</div>
+
+<!-- ===== FX: ambient particle canvas + cursor glow (bg layers added by fx-engine.js too) ===== -->
+<canvas id="fxCanvas" class="fx-canvas" aria-hidden="true"></canvas>
+<div class="fx-cursor-glow" id="fxCursorGlow" aria-hidden="true"></div>
+<div class="fx-theme-sweep" id="fxThemeSweep" aria-hidden="true"></div>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+  <div class="brand"><span class="dot-live"></span> Nostalgia Radio</div>
+  <div class="online-pill">🟢 <span id="onlineCount">—</span> online</div>
+  <div class="theme-chip" id="themeChip" onclick="openThemeSheet()" title="Theme badlo">🎨</div>
+</div>
+
+<!-- ===== VIEW: PLAYER (default + Playlist tab target) ===== -->
+<section class="view active" id="view-player">
+  <div class="player-stage" id="stage">
+    <div class="stage-inner">
+      <div class="theme-art" id="themeArt"></div>
+      <div class="disc-wrap">
+        <div class="disc" id="disc"><div class="hole"></div></div>
+      </div>
+      <h1 class="theme-title" id="themeTitle">—</h1>
+      <p class="theme-tag" id="themeTag">—</p>
+      <p class="status-note" id="statusNote">Play dabao, gaana shuru</p>
+      <div class="transport">
+        <button class="tbtn" onclick="prevTrack()" aria-label="Peeche">⏮</button>
+        <button class="tbtn big" id="playBtn" onclick="togglePlay()" aria-label="Play/Pause">▶</button>
+        <button class="tbtn" onclick="nextTrack()" aria-label="Aage">⏭</button>
+      </div>
+      <div class="wave-bar" id="waveBar" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VIEW: ABOUT ===== -->
+<section class="view" id="view-about">
+  <div class="about-wrap">
+    <div class="about-card">
+      <h2>Nostalgia Radio kya hai?</h2>
+      <p>Har theme ka apna mood, apna gaana, apna adda. Jo bhi theme chuno — usi ke mood mein gaana bajta rahega, aur usi theme ke logon se live chat bhi kar sakte ho. Chaaho to apna khud ka <b>private room</b> banake sirf apne dost ke saath bhi baat kar sakte ho, gaana chalta rahega background mein.</p>
+    </div>
+    <div class="section-label">Is Theme Ke Kisse</div>
+    <div id="quotesWrap"></div>
+
+    <div class="section-label">Iske Peeche Kaun Hai?</div>
+    <div class="maker-card">
+      <div class="maker-avatar">MK</div>
+      <h3>Mukul Kumar</h3>
+      <p class="maker-role">Full-Stack Developer · B.Tech CSE (AI &amp; ML)</p>
+      <p class="maker-bio">Ye poori website — live radio, real-time chat, private rooms, sab kuch — maine khud design aur code kiya hai. Agar aapko bhi apne liye ya apne business ke liye aisi hi koi modern, fast aur live website banwani ho, to seedha message karo.</p>
+      <button class="btn-contact" onclick="contactMe()">💬 Contact Me</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VIEW: PROFILE ===== -->
+<section class="view" id="view-profile">
+  <div class="profile-wrap">
+    <div class="profile-card">
+      <div class="avatar-ring" id="avatarRing">?</div>
+      <h2 id="profileName">Guest</h2>
+      <div class="sub">Apna naam set karo taaki chat mein sab pehchaanein</div>
+      <div class="field">
+        <label>Tumhara Naam</label>
+        <input id="profileNameInput" maxlength="18" placeholder="e.g. Rohit">
+      </div>
+      <button class="btn-primary" onclick="saveProfileName()">Save Karo</button>
+      <div class="profile-stat"><span>Current Theme</span><b id="profileTheme">—</b></div>
+      <div class="profile-stat"><span>Total Themes</span><b id="profileThemeCount">—</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VIEW: CHAT ===== -->
+<section class="view" id="view-chat">
+  <div class="chat-wrap">
+    <div class="chat-room-bar">
+      <span class="live"><span class="dotlive"></span> LIVE</span>
+      <b id="chatRoomLabel">—</b>
+      <button class="room-btn" onclick="openRoomSheet()">🔒 Private Room</button>
+    </div>
+    <div id="msgs"></div>
+    <div class="chat-input">
+      <input id="chatInput" maxlength="200" placeholder="Message likho..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button onclick="sendMsg()">Bhejo</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CREDIT STRIP (persistent, every page) ===== -->
+<button class="credit-strip" onclick="contactMe()">✦ Made by <b>Mukul Kumar</b> — Apna website banwaani ho? Contact karo</button>
+
+<!-- ===== BOTTOM NAV (4 buttons only) ===== -->
+<nav class="bottom-nav">
+  <span class="nav-indicator" id="navIndicator" aria-hidden="true"></span>
+  <button class="nav-btn active" id="navPlayer" onclick="switchView('player')"><span class="ic">🎵</span>Playlist</button>
+  <button class="nav-btn" id="navChat" onclick="switchView('chat')"><span class="ic chat-dot" id="chatDot">💬</span>Chat</button>
+  <button class="nav-btn" id="navProfile" onclick="switchView('profile')"><span class="ic">👤</span>Profile</button>
+  <button class="nav-btn" id="navAbout" onclick="switchView('about')"><span class="ic">ℹ️</span>About</button>
+</nav>
+
+<!-- ===== THEME PICKER SHEET ===== -->
+<div class="sheet-overlay" id="themeSheet" onclick="if(event.target===this) closeThemeSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Theme Chuno</h3>
+    <div id="themeList"></div>
+  </div>
+</div>
+
+<!-- ===== PRIVATE ROOM SHEET ===== -->
+<div class="sheet-overlay" id="roomSheet" onclick="if(event.target===this) closeRoomSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Private Room</h3>
+    <div class="room-card">
+      <p>Apna khud ka private room banao aur ye code apne dost ko bhejo — sirf wahi log jinke paas ye code hai, is chat ko dekh payenge.</p>
+      <button class="btn-primary" onclick="createPrivateRoom()">➕ Naya Room Banao</button>
+    </div>
+    <div class="room-card">
+      <p>Kisi ne room code diya hai? Yahan daalo aur join karo.</p>
+      <div class="room-row">
+        <input id="roomCodeInput" maxlength="6" placeholder="CODE">
+        <button class="btn-primary" style="width:auto; padding:0 18px;" onclick="joinPrivateRoom()">Join</button>
+      </div>
+    </div>
+    <div class="room-card" id="currentRoomCard" style="display:none;">
+      <p>Abhi is room mein ho:</p>
+      <div class="room-code-display" id="currentRoomLabel">—</div>
+      <button class="btn-ghost" onclick="leavePrivateRoom()">⬅ Theme Chat Par Wapas Jao</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NAME MODAL (shown once, first time chat/profile is opened) ===== -->
+<div class="name-modal" id="nameModal">
+  <div class="name-card">
+    <h3>👋 Apna naam batao</h3>
+    <p>Chat mein aur logon ko tumhara naam dikhega.</p>
+    <input id="nameInput" maxlength="18" placeholder="e.g. Rohit" onkeydown="if(event.key==='Enter')setName()">
+    <button onclick="setName()">Chalo Shuru Karein</button>
+  </div>
+</div>
+
+<!-- hidden YouTube player mount point -->
+<div id="ytPlayer" style="position:fixed; width:1px; height:1px; opacity:0; pointer-events:none; bottom:0; left:0;"></div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+/* ===== config.js (original, unchanged) ===== */
+/*
+  ================================================================
+  RUNTIME CONFIG — sirf isi file mein cheezein badalni hain.
+  YEH FILE HAI: frontend/js/config.js   (index.html mein KUCH NAHI badalna)
+  ================================================================
+
+  1) BACKEND_URL — already live hai, isse mat chhedo.
+
+  2) YOUTUBE_API_KEY — YEH ZAROORI HAI. Isके bina koi bhi gaana nahi
+     bajega (search-fallback hata diya gaya hai, jaisa tumne kaha).
+     App har gaane ke liye exact video seedha YouTube Data API v3 se
+     dhoondhta hai, isliye ek valid key yahan neeche paste karo.
+
+     Key kaise banaye (5 minute ka kaam, bilkul free):
+       a) https://console.cloud.google.com/ par jao, Google account se login karo.
+       b) Upar se "New Project" banao (koi bhi naam, e.g. "nostalgia-radio").
+       c) Left menu → "APIs & Services" → "Library" → search karo
+          "YouTube Data API v3" → usko "Enable" karo.
+       d) "APIs & Services" → "Credentials" → "Create Credentials" →
+          "API key" → ek key milegi (jaisa: AIzaSy...).
+       e) Us key ko copy karke neeche wali line mein paste karo.
+
+     (Optional but recommended: us key ko "Restrict key" karke sirf
+      "YouTube Data API v3" tak limit kar do, taaki koi misuse na kare.)
+*/
+window.BACKEND_URL = "https://nostalgia-radio-s994.onrender.com";
+window.YOUTUBE_API_KEY = "AIzaSyBrilgayUlGkWDZLGnBabCUTRR3c0vOZsY";
+
+/* ===== data.js (original, unchanged) ===== */
+const THEMES = [
+  {
+    "id": "deluxesalon",
+    "icon": "💈",
+    "title": "Deluxe Salon Lounge",
+    "tag": "Chill Salon Vibes — Kursi Pe Baith, Sukoon Se Sun",
+    "accent": "#c9a24b",
+    "heroBg": "linear-gradient(160deg,#1b140a,#2e2011 55%,#4a3418)",
+    "quotes": [
+      [
+        "Bas 10 minute sir, styling thodi der lagti hai.",
+        "Salon Bhaiya"
+      ],
+      [
+        "Gaana chalao, mirror ke saamne time nikal jaayega.",
+        "Customer"
+      ]
+    ],
+    "tracks": [
+      { "t": "Tum Hi Ho", "a": "Arijit Singh" },
+      { "t": "Kabira", "a": "Tochi Raina" },
+      { "t": "Ae Dil Hai Mushkil", "a": "Arijit Singh" },
+      { "t": "Channa Mereya", "a": "Arijit Singh" },
+      { "t": "Phir Bhi Tumko Chaahunga", "a": "Arijit Singh" },
+      { "t": "Ilahi", "a": "Arijit Singh" },
+      { "t": "Raabta", "a": "Arijit Singh" },
+      { "t": "Hawayein", "a": "Arijit Singh" },
+      { "t": "Bulleya", "a": "Amit Mishra" },
+      { "t": "Khairiyat", "a": "Arijit Singh" },
+      { "t": "Tera Ban Jaunga", "a": "Akhil Sachdeva" },
+      { "t": "Kaise Hua", "a": "Vishal Mishra" },
+      { "t": "Muskurane Ki Wajah", "a": "Arijit Singh" },
+      { "t": "Sooraj Dooba Hain", "a": "Arijit Singh" },
+      { "t": "Tum Se Hi", "a": "Mohit Chauhan" },
+      { "t": "Agar Tum Saath Ho", "a": "Arijit Singh" },
+      { "t": "Pee Loon", "a": "Mohit Chauhan" },
+      { "t": "Tera Yaar Hoon Main", "a": "Arijit Singh" },
+      { "t": "Ae Watan", "a": "Sunidhi Chauhan" },
+      { "t": "Zaroorat", "a": "Mustafa Zahid" }
+    ],
+    "svg": "<svg viewBox=\"0 0 300 200\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"0\" y=\"160\" width=\"300\" height=\"40\" fill=\"#2e2011\"/><rect x=\"110\" y=\"40\" width=\"18\" height=\"120\" fill=\"#c9a24b\"/><path d=\"M119 40 a9 9 0 1 1 0.01 0\" fill=\"#c9a24b\"/><rect x=\"104\" y=\"150\" width=\"30\" height=\"14\" rx=\"4\" fill=\"#4a3418\"/><circle cx=\"180\" cy=\"90\" r=\"26\" fill=\"#ffcf8f\"/><rect x=\"160\" y=\"116\" width=\"40\" height=\"48\" rx=\"12\" fill=\"#3a2a12\"/><rect x=\"150\" y=\"70\" width=\"60\" height=\"14\" rx=\"6\" fill=\"#c9a24b\"/><circle cx=\"230\" cy=\"60\" r=\"5\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"245\" cy=\"75\" r=\"3\" fill=\"#fff\" opacity=\".5\"/></svg>"
+  },
+  {
+    "id": "rajumistri",
+    "icon": "🧱",
+    "title": "राजू मिस्त्री Playlist",
+    "tag": "Construction Site Songs — Bhavan Nirman Ke Suroor",
+    "accent": "#ffb703",
+    "heroBg": "linear-gradient(160deg,#3a2a12,#6b3d12 55%,#8a4a12)",
+    "quotes": [
+      [
+        "Sahab, kal aake plaster maar denge, aaj gaana bajne do!",
+        "Thekedar"
+      ],
+      [
+        "Aadhi deewar khadi hai, poora dard baj raha hai.",
+        "Mazdoor"
+      ]
+    ],
+    "tracks": [
+      { "t": "Chaiyya Chaiyya", "a": "Sukhwinder Singh" },
+      { "t": "Kajra Re", "a": "Alisha Chinai" },
+      { "t": "Nagada Sang Dhol", "a": "Shreya Ghoshal" },
+      { "t": "Radha Kaise Na Jale", "a": "Sadhana Sargam" },
+      { "t": "Mauja Hi Mauja", "a": "Mika Singh" },
+      { "t": "Sadda Haq", "a": "Mohit Chauhan" },
+      { "t": "Emotional Atyachar", "a": "Hard Kaur" },
+      { "t": "Gerua", "a": "Arijit Singh" },
+      { "t": "Pehla Nasha", "a": "Udit Narayan" },
+      { "t": "Kal Ho Naa Ho", "a": "Sonu Nigam" },
+      { "t": "Tujhe Dekha To", "a": "Lata Mangeshkar" },
+      { "t": "Ek Ladki Ko Dekha", "a": "Kumar Sanu" },
+      { "t": "Tumse Milke Dil Ka", "a": "Alka Yagnik" },
+      { "t": "Deewana Hua Badal", "a": "Kumar Sanu" },
+      { "t": "Zinda", "a": "Siddharth Mahadevan" },
+      { "t": "Bezubaan", "a": "Sukhwinder Singh" },
+      { "t": "Dhoom Machale", "a": "Sunidhi Chauhan" },
+      { "t": "Chak De Phatte", "a": "Labh Janjua" },
+      { "t": "Balam Pichkari", "a": "Vishal Dadlani" },
+      { "t": "Nashe Si Chadh Gayi", "a": "Arijit Singh" }
+    ],
+    "svg": "<svg viewBox=\"0 0 300 200\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"0\" y=\"150\" width=\"300\" height=\"50\" fill=\"#5c3413\"/><rect x=\"40\" y=\"120\" width=\"34\" height=\"30\" fill=\"#c46a2b\"/><rect x=\"78\" y=\"120\" width=\"34\" height=\"30\" fill=\"#a85423\"/><rect x=\"40\" y=\"90\" width=\"34\" height=\"26\" fill=\"#a85423\"/><rect x=\"78\" y=\"90\" width=\"34\" height=\"26\" fill=\"#c46a2b\"/><rect x=\"180\" y=\"30\" width=\"10\" height=\"130\" fill=\"#3a2a12\"/><rect x=\"140\" y=\"20\" width=\"80\" height=\"10\" fill=\"#3a2a12\"/><rect x=\"205\" y=\"15\" width=\"8\" height=\"40\" fill=\"#ffb703\"/><circle cx=\"150\" cy=\"95\" r=\"24\" fill=\"#ffcf8f\"/><rect x=\"128\" y=\"115\" width=\"44\" height=\"46\" rx=\"8\" fill=\"#c46a2b\"/><rect x=\"118\" y=\"150\" width=\"18\" height=\"8\" fill=\"#ffcf8f\"/><rect x=\"160\" y=\"150\" width=\"30\" height=\"8\" fill=\"#8a8f96\"/></svg>"
+  },
+  {
+    "id": "papa",
+    "icon": "📻",
+    "title": "पापा के ज़माने के गाने",
+    "tag": "Purane Gaane, Non-Stop — Kishore, Rafi, Lata",
+    "accent": "#e0a63b",
+    "heroBg": "linear-gradient(160deg,#2c1a10,#4a2c14 55%,#6e4319)",
+    "quotes": [
+      [
+        "Mere zamane mein aisa nahi tha.",
+        "Papa"
+      ],
+      [
+        "Paise ped pe nahi ugte.",
+        "Papa"
+      ]
+    ],
+    "tracks": [
+      { "t": "Roop Tera Mastana", "a": "Kishore Kumar" },
+      { "t": "Mere Sapno Ki Rani", "a": "Kishore Kumar" },
+      { "t": "Chura Liya Hai Tumne", "a": "Asha Bhosle" },
+      { "t": "Ye Sham Mastani", "a": "Kishore Kumar" },
+      { "t": "Zindagi Ek Safar Hai Suhana", "a": "Kishore Kumar" },
+      { "t": "Pal Pal Dil Ke Paas", "a": "Kishore Kumar" },
+      { "t": "Mere Naina Sawan Bhado", "a": "Kishore Kumar" },
+      { "t": "Kabhi Kabhie Mere Dil Mein", "a": "Mukesh" },
+      { "t": "Yeh Dosti", "a": "Kishore Kumar" },
+      { "t": "Chingari Koi Bhadke", "a": "Kishore Kumar" },
+      { "t": "Aane Wala Pal", "a": "Kishore Kumar" },
+      { "t": "Mere Dil Mein Aaj Kya Hai", "a": "Kishore Kumar" },
+      { "t": "Gulabi Aankhen", "a": "Mohammed Rafi" },
+      { "t": "Jai Jai Shiv Shankar", "a": "Kishore Kumar" },
+      { "t": "Dil Aisa Kisi Ne Mera Toda", "a": "Kishore Kumar" },
+      { "t": "O Mere Dil Ke Chain", "a": "Kishore Kumar" },
+      { "t": "Ek Ajnabee Haseena Se", "a": "Kishore Kumar" },
+      { "t": "Rimjhim Gire Sawan", "a": "Kishore Kumar" },
+      { "t": "Tere Bina Zindagi Se", "a": "Kishore Kumar" },
+      { "t": "Mehbooba Mehbooba", "a": "R.D. Burman" }
+    ],
+    "svg": "<svg viewBox=\"0 0 300 200\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"60\" y=\"120\" width=\"180\" height=\"60\" rx=\"10\" fill=\"#8a5a22\"/><rect x=\"70\" y=\"130\" width=\"160\" height=\"20\" rx=\"4\" fill=\"#5c3a12\"/><circle cx=\"95\" cy=\"160\" r=\"10\" fill=\"#3a230b\"/><circle cx=\"205\" cy=\"160\" r=\"10\" fill=\"#3a230b\"/><rect x=\"140\" y=\"95\" width=\"20\" height=\"30\" fill=\"#e0a63b\"/><path d=\"M150 95 L150 60\" stroke=\"#e0a63b\" stroke-width=\"4\"/><circle cx=\"90\" cy=\"70\" r=\"26\" fill=\"#ffcf8f\"/><circle cx=\"210\" cy=\"75\" r=\"24\" fill=\"#ffcf8f\"/><rect x=\"72\" y=\"96\" width=\"36\" height=\"30\" rx=\"10\" fill=\"#5c3a12\"/><rect x=\"192\" y=\"99\" width=\"34\" height=\"28\" rx=\"10\" fill=\"#3a230b\"/></svg>"
+  },
+  {
+    "id": "bhojpuri",
+    "icon": "🐃",
+    "title": "भोजपुरी Bangers",
+    "tag": "Bhojpuri & Bihari Hits — DJ Remix Non-Stop",
+    "accent": "#ffcf3a",
+    "heroBg": "linear-gradient(160deg,#2c1707,#5c2f0c 55%,#8a4a12)",
+    "quotes": [
+      [
+        "Raja ji ke dilwa mein, hamar bate kaja.",
+        "Sadiya"
+      ],
+      [
+        "Aara hile chhapra hile, ballia hilela.",
+        "Local"
+      ]
+    ],
+    "tracks": [
+      { "t": "Lollipop Lagelu", "a": "Pawan Singh" },
+      { "t": "Tohar Se Pyar Ho Gail", "a": "Khesari Lal Yadav" },
+      { "t": "Saiyaan Superstar", "a": "Pawan Singh" },
+      { "t": "Sun Mera Khiladi", "a": "Khesari Lal Yadav" },
+      { "t": "Chhaliya Balamua", "a": "Pawan Singh" },
+      { "t": "Hamar Dhak Dhak", "a": "Pawan Singh" },
+      { "t": "Rasgulla", "a": "Khesari Lal Yadav" },
+      { "t": "Patli Kamariya", "a": "Pawan Singh" },
+      { "t": "Odhaniya", "a": "Khesari Lal Yadav" },
+      { "t": "Chumma De De", "a": "Khesari Lal Yadav" },
+      { "t": "Kacchi Kaliya", "a": "Khesari Lal Yadav" },
+      { "t": "Balma", "a": "Pawan Singh" },
+      { "t": "Bhatar Ke Deewani", "a": "Khesari Lal Yadav" },
+      { "t": "Nathuniya", "a": "Pawan Singh" },
+      { "t": "Rangdaari", "a": "Pawan Singh" },
+      { "t": "Dupatta Tera", "a": "Khesari Lal Yadav" },
+      { "t": "Jawani Ke Jahaj", "a": "Pawan Singh" },
+      { "t": "Ae Raja", "a": "Pawan Singh" },
+      { "t": "Hey Chhaliya", "a": "Khesari Lal Yadav" },
+      { "t": "Bhojpuri Tadka", "a": "Pawan Singh" }
+    ],
+    "svg": "<svg viewBox=\"0 0 300 200\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"20\" y=\"140\" width=\"260\" height=\"50\" rx=\"8\" fill=\"#7a3f10\"/><circle cx=\"150\" cy=\"90\" r=\"46\" fill=\"#2a1c12\"/><path d=\"M110 60 L90 25 M190 60 L210 25\" stroke=\"#2a1c12\" stroke-width=\"10\" stroke-linecap=\"round\"/><rect x=\"118\" y=\"80\" width=\"64\" height=\"18\" rx=\"4\" fill=\"#ffcf3a\"/><circle cx=\"132\" cy=\"89\" r=\"7\" fill=\"#2a1c12\"/><circle cx=\"168\" cy=\"89\" r=\"7\" fill=\"#2a1c12\"/><rect x=\"70\" y=\"105\" width=\"28\" height=\"20\" rx=\"4\" fill=\"#ffcf3a\"/><rect x=\"202\" y=\"105\" width=\"28\" height=\"20\" rx=\"4\" fill=\"#ffcf3a\"/></svg>"
+  },
+  {
+    "id": "corporate",
+    "icon": "💻",
+    "title": "Corporate Majdoor",
+    "tag": "9 to 5 Ki Majdoori — Overtime Playlist",
+    "accent": "#5aa9ff",
+    "heroBg": "linear-gradient(160deg,#141a2c,#1e2740 55%,#233258)",
+    "quotes": [
+      [
+        "Boss aaya, fake work laga lo!",
+        "Anonymous"
+      ],
+      [
+        "Deadline kal thi, aaj bhi hai, kal bhi rahegi.",
+        "PM"
+      ]
+    ],
+    "tracks": [
+      { "t": "Phir Le Aya Dil", "a": "Rekha Bhardwaj" },
+      { "t": "Ilahi", "a": "Arijit Singh" },
+      { "t": "Zara Zara", "a": "Bombay Jayashri" },
+      { "t": "Tujhe Kitna Chahne Lage", "a": "Arijit Singh" },
+      { "t": "Iktara", "a": "Kavita Seth" },
+      { "t": "Kun Faya Kun", "a": "A.R. Rahman" },
+      { "t": "Manwa Laage", "a": "Arijit Singh" },
+      { "t": "Nadaan Parinde", "a": "Mohit Chauhan" },
+      { "t": "Ae Zindagi Gale Laga Le", "a": "Bhupinder Singh" },
+      { "t": "Channa Mereya", "a": "Arijit Singh" },
+      { "t": "Agar Tum Saath Ho", "a": "Arijit Singh" },
+      { "t": "Tum Se Hi", "a": "Mohit Chauhan" },
+      { "t": "Khairiyat", "a": "Arijit Singh" },
+      { "t": "Kaise Hua", "a": "Vishal Mishra" },
+      { "t": "Raabta", "a": "Arijit Singh" },
+      { "t": "Pee Loon", "a": "Mohit Chauhan" },
+      { "t": "Tera Yaar Hoon Main", "a": "Arijit Singh" },
+      { "t": "Kabira", "a": "Tochi Raina" },
+      { "t": "Tum Hi Ho", "a": "Arijit Singh" },
+      { "t": "Ae Dil Hai Mushkil", "a": "Arijit Singh" }
+    ],
+    "svg": "<svg viewBox=\"0 0 300 200\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"40\" y=\"120\" width=\"220\" height=\"12\" fill=\"#3a4a70\"/><rect x=\"60\" y=\"132\" width=\"60\" height=\"40\" fill=\"#22304f\"/><rect x=\"66\" y=\"138\" width=\"48\" height=\"26\" fill=\"#5aa9ff\"/><circle cx=\"180\" cy=\"95\" r=\"24\" fill=\"#ffcf8f\"/><rect x=\"158\" y=\"115\" width=\"44\" height=\"40\" rx=\"10\" fill=\"#5aa9ff\"/><rect x=\"150\" y=\"132\" width=\"60\" height=\"10\" fill=\"#1a2338\"/><rect x=\"210\" y=\"140\" width=\"34\" height=\"30\" fill=\"#22304f\"/><rect x=\"216\" y=\"146\" width=\"22\" height=\"16\" fill=\"#5aa9ff\"/></svg>"
+  },
+  {
+    "id": "bartan",
+    "icon": "🍽️",
+    "title": "बर्तन Time",
+    "tag": "Kitchen-Chore Nostalgia, Rebuilt In Sound",
+    "accent": "#ff8fa3",
+    "heroBg": "linear-gradient(160deg,#2b1114,#4a1c22 55%,#6e2632)",
+    "quotes": [
+      [
+        "Amma bol rahi hai jaldi bartan dho warna TV band kar degi!",
+        "Ghar Ki Chhoti"
+      ]
+    ],
+    "tracks": [
+      { "t": "Ghar More Pardesiya", "a": "Shreya Ghoshal" },
+      { "t": "Ambarsariya", "a": "Sunidhi Chauhan" },
+      { "t": "Piya Tose Naina Laage", "a": "Lata Mangeshkar" },
+      { "t": "Sawaar Loon", "a": "Mohit Chauhan" },
+      { "t": "Ghoomar", "a": "Shreya Ghoshal" },
+      { "t": "Kaun Tujhe", "a": "Palak Muchhal" },
+      { "t": "Tera Ban Jaunga", "a": "Akhil Sachdeva" },
+      { "t": "Yeh Ishq Hai", "a": "Shreya Ghoshal" },
+      { "t": "Barso Re", "a": "Shreya Ghoshal" },
+      { "t": "Tu Jo Mila", "a": "Sukhwinder Singh" },
+      { "t": "Sun Raha Hai Na Tu", "a": "Shreya Ghoshal" },
+      { "t": "Mora Piya", "a": "Sunidhi Chauhan" },
+      { "t": "Tera Chehra", "a": "Adnan Sami" },
+      { "t": "Dholna", "a": "Udit Narayan" },
+      { "t": "Jiya Jale", "a": "Lata Mangeshkar" },
+      { "t": "Bahara", "a": "Mohit Chauhan" },
+      { "t": "Khamoshiyan", "a": "Arijit Singh" },
+      { "t": "Ranjha", "a": "B Praak" },
+      { "t": "Tumhare Hi Rahenge Hum", "a": "Sachet Tandon" },
+      { "t": "Kabhi Neem Neem", "a": "Rekha Bhardwaj" }
+    ],
+    "svg": "<svg viewBox=\"0 0 300 200\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"50\" y=\"130\" width=\"200\" height=\"50\" rx=\"10\" fill=\"#7a2c38\"/><ellipse cx=\"150\" cy=\"130\" rx=\"70\" ry=\"14\" fill=\"#ff8fa3\"/><circle cx=\"120\" cy=\"128\" r=\"9\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"160\" cy=\"132\" r=\"6\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"190\" cy=\"70\" r=\"24\" fill=\"#ffcf8f\"/><rect x=\"168\" y=\"90\" width=\"44\" height=\"48\" rx=\"14\" fill=\"#6e2632\"/><path d=\"M190 46 L190 20 M175 30 L205 30\" stroke=\"#ff8fa3\" stroke-width=\"3\"/></svg>"
+  },
+  {
+    "id": "busdriver",
+    "icon": "🚌",
+    "title": "बस ड्राइवर",
+    "tag": "The Highway Raat Playlist — All Night On NH48",
+    "accent": "#ff6b35",
+    "heroBg": "linear-gradient(160deg,#1a0f06,#3a1f0c 55%,#5c2f0c)",
+    "quotes": [
+      [
+        "Horn OK Please, peeche se aa raha hoon!",
+        "Driver"
+      ],
+      [
+        "Dhaba pe chai rukwa lo, gaana chalta rahega.",
+        "Khalasi"
+      ]
+    ],
+    "tracks": [
+      { "t": "Safarnama", "a": "Mohit Chauhan" },
+      { "t": "Khaabon Ke Parinday", "a": "Mohit Chauhan" },
+      { "t": "Senorita", "a": "Farhan Akhtar" },
+      { "t": "Balam Pichkari", "a": "Vishal Dadlani" },
+      { "t": "Zinda Hoon Yaar", "a": "Ash King" },
+      { "t": "Kar Har Maidaan Fateh", "a": "Sukhwinder Singh" },
+      { "t": "Dilbar", "a": "Neha Kakkar" },
+      { "t": "Dhoom Machale", "a": "Sunidhi Chauhan" },
+      { "t": "Yamla Pagla Deewana", "a": "Mika Singh" },
+      { "t": "Chhod Aaye Hum", "a": "Kavita Seth" },
+      { "t": "Har Ek Friend Zaroori Hota Hai", "a": "KK" },
+      { "t": "Mere Yaar Ki Shaadi Hai", "a": "Sonu Nigam" },
+      { "t": "Saathiya", "a": "Sonu Nigam" },
+      { "t": "Dhadkan", "a": "Udit Narayan" },
+      { "t": "O Sathi Re", "a": "Kishore Kumar" },
+      { "t": "Duniya", "a": "Akhil" },
+      { "t": "Ruk Ja O Dil Deewane", "a": "Udit Narayan" },
+      { "t": "Bharat Humko Jaan Se Pyaara Hai", "a": "Sonu Nigam" },
+      { "t": "Yeh Dosti", "a": "Kishore Kumar" },
+      { "t": "Yaadon Ki Baraat", "a": "Kishore Kumar" }
+    ],
+    "svg": "<svg viewBox=\"0 0 300 200\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"0\" y=\"160\" width=\"300\" height=\"30\" fill=\"#1a120a\"/><rect x=\"30\" y=\"90\" width=\"220\" height=\"70\" rx=\"14\" fill=\"#ff6b35\"/><rect x=\"45\" y=\"100\" width=\"40\" height=\"30\" rx=\"4\" fill=\"#ffe9d6\"/><rect x=\"95\" y=\"100\" width=\"40\" height=\"30\" rx=\"4\" fill=\"#ffe9d6\"/><rect x=\"145\" y=\"100\" width=\"40\" height=\"30\" rx=\"4\" fill=\"#ffe9d6\"/><circle cx=\"80\" cy=\"168\" r=\"16\" fill=\"#1a120a\"/><circle cx=\"200\" cy=\"168\" r=\"16\" fill=\"#1a120a\"/><circle cx=\"80\" cy=\"168\" r=\"6\" fill=\"#8a8f96\"/><circle cx=\"200\" cy=\"168\" r=\"6\" fill=\"#8a8f96\"/><rect x=\"250\" y=\"105\" width=\"14\" height=\"18\" fill=\"#ffcf3a\"/></svg>"
+  },
+  {
+    "id": "baraat",
+    "icon": "💃",
+    "title": "शादी की बाराथ",
+    "tag": "Shaadi Baraat Non-Stop — Naach Gaana Anthem",
+    "accent": "#d63384",
+    "heroBg": "linear-gradient(160deg,#2c0f1e,#4a1830 55%,#6e2350)",
+    "quotes": [
+      [
+        "Dulhe raja ki baraat aa gayi, dhol bajao!",
+        "Baraati"
+      ],
+      [
+        "Pehle naach lo, khana baad mein.",
+        "Chacha"
+      ]
+    ],
+    "tracks": [
+      { "t": "London Thumakda", "a": "Labh Janjua" },
+      { "t": "Kala Chashma", "a": "Badshah" },
+      { "t": "Nagada Sang Dhol", "a": "Shreya Ghoshal" },
+      { "t": "Badri Ki Dulhania", "a": "Neha Kakkar" },
+      { "t": "Dholida", "a": "Shreya Ghoshal" },
+      { "t": "Mehendi Laga Ke Rakhna", "a": "Lata Mangeshkar" },
+      { "t": "Aaj Mera Jee Karda", "a": "Shipra Goyal" },
+      { "t": "Banno Tera Swagger", "a": "Neha Kakkar" },
+      { "t": "Ainvayi Ainvayi", "a": "Salim Merchant" },
+      { "t": "Sadi Gali", "a": "Miss Pooja" },
+      { "t": "Gallan Goodiyaan", "a": "Yashita Sharma" },
+      { "t": "Prem Ratan Dhan Payo", "a": "Palak Muchhal" },
+      { "t": "Chittiyaan Kalaiyaan", "a": "Kanika Kapoor" },
+      { "t": "Shubhaarambh", "a": "Vishal Dadlani" },
+      { "t": "Radha", "a": "Shreya Ghoshal" },
+      { "t": "Dilliwaali Girlfriend", "a": "Arijit Singh" },
+      { "t": "Vaari Vaari", "a": "Sukhwinder Singh" },
+      { "t": "Meri Zindagi Mein Aaye Ho", "a": "Neeti Mohan" },
+      { "t": "Var Ni Bindani", "a": "Aishwarya Majmudar" },
+      { "t": "Nachde Ne Saare", "a": "Jasleen Royal" }
+    ],
+    "svg": "<svg viewBox=\"0 0 300 200\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"150\" cy=\"80\" r=\"30\" fill=\"#ffcf8f\"/><path d=\"M120 65 Q150 30 180 65 Z\" fill=\"#d63384\"/><rect x=\"120\" y=\"105\" width=\"60\" height=\"60\" rx=\"16\" fill=\"#d63384\"/><circle cx=\"90\" cy=\"100\" r=\"18\" fill=\"#ffcf8f\"/><rect x=\"72\" y=\"118\" width=\"36\" height=\"46\" rx=\"12\" fill=\"#ffcf3a\"/><circle cx=\"210\" cy=\"100\" r=\"18\" fill=\"#ffcf8f\"/><rect x=\"192\" y=\"118\" width=\"36\" height=\"46\" rx=\"12\" fill=\"#ffcf3a\"/><circle cx=\"70\" cy=\"60\" r=\"4\" fill=\"#fff\"/><circle cx=\"230\" cy=\"60\" r=\"4\" fill=\"#fff\"/><circle cx=\"150\" cy=\"40\" r=\"4\" fill=\"#fff\"/></svg>"
+  },
+  {
+    "id": "gully",
+    "icon": "🏏",
+    "title": "गली क्रिकेट Josh",
+    "tag": "Mohalla Cricket & Josh Anthem Playlist",
+    "accent": "#2ecc71",
+    "heroBg": "linear-gradient(160deg,#0e2a1a,#164a2c 55%,#1c6a3d)",
+    "quotes": [
+      [
+        "Over gaya, ab gaana chalao!",
+        "Captain"
+      ],
+      [
+        "Chauka lage ya na lage, gaana toh chalega.",
+        "Umpire"
+      ]
+    ],
+    "tracks": [
+      { "t": "Chak De India", "a": "Sukhwinder Singh" },
+      { "t": "Lakshya", "a": "Shaan" },
+      { "t": "Jai Ho", "a": "Sukhwinder Singh" },
+      { "t": "Sultan", "a": "Sukhwinder Singh" },
+      { "t": "Maula Mere Maula", "a": "Roop Kumar Rathod" },
+      { "t": "Bhaag Milkha Bhaag", "a": "Siddharth Mahadevan" },
+      { "t": "Apna Time Aayega", "a": "Ranveer Singh" },
+      { "t": "Azadi", "a": "Divine" },
+      { "t": "Mere Gully Mein", "a": "Divine" },
+      { "t": "Mitti Di Khushboo", "a": "Sonu Nigam" },
+      { "t": "Vande Mataram", "a": "A.R. Rahman" },
+      { "t": "Ziddi Dil", "a": "Amaal Mallik" },
+      { "t": "Aashayein", "a": "KK" },
+      { "t": "Dhan Te Nan", "a": "Sukhwinder Singh" },
+      { "t": "Malhari", "a": "Vishal Dadlani" },
+      { "t": "Bulleya", "a": "Papon" },
+      { "t": "Lehra Do", "a": "Sukhwinder Singh" },
+      { "t": "Hindustan Humko Jaan Se Pyaara Hai", "a": "Kavita Krishnamurthy" },
+      { "t": "Kandhon Se Milte Hain Kandhe", "a": "Shaan" },
+      { "t": "Sandese Aate Hai", "a": "Sonu Nigam" }
+    ],
+    "svg": "<svg viewBox=\"0 0 300 200\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"0\" y=\"170\" width=\"300\" height=\"20\" fill=\"#2ecc71\" opacity=\"0.3\"/><rect x=\"145\" y=\"60\" width=\"10\" height=\"90\" fill=\"#caa472\"/><ellipse cx=\"150\" cy=\"150\" rx=\"24\" ry=\"8\" fill=\"#caa472\"/><circle cx=\"150\" cy=\"45\" r=\"10\" fill=\"#fff\"/><circle cx=\"90\" cy=\"110\" r=\"20\" fill=\"#ffcf8f\"/><rect x=\"75\" y=\"128\" width=\"30\" height=\"40\" rx=\"10\" fill=\"#2ecc71\"/><rect x=\"60\" y=\"120\" width=\"20\" height=\"6\" fill=\"#8a5a22\"/><circle cx=\"220\" cy=\"120\" r=\"18\" fill=\"#ffcf8f\"/><rect x=\"205\" y=\"136\" width=\"30\" height=\"36\" rx=\"10\" fill=\"#1a4a2e\"/></svg>"
+  }
+];
+
+/* ===== app.js (original, unchanged) ===== */
+/* ================= STATE ================= */
+let currentThemeId = localStorage.getItem("nr_theme") || THEMES[0].id;
+let currentTrackIdx = 0;
+let isPlaying = false;
+let myName = localStorage.getItem("nr_name") || "";
+let tempGuestName = "Guest" + Math.floor(Math.random() * 9000 + 1000);
+let currentRoom = currentThemeId;
+let privateRoomActive = false;
+
+function theme(){ return THEMES.find(t => t.id === currentThemeId) || THEMES[0]; }
+function displayName(){ return myName || tempGuestName; }
+
+/* ================= VIEW / TAB SWITCHING ================= */
+function switchView(name){
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("view-" + name).classList.add("active");
+  document.getElementById("nav" + name.charAt(0).toUpperCase() + name.slice(1)).classList.add("active");
+
+  if(name === "chat"){
+    document.getElementById("chatDot").classList.remove("has-new");
+    if(!myName){ openNameModal(); }
+  }
+  if(name === "profile"){
+    document.getElementById("profileNameInput").value = myName;
+  }
+}
+
+/* ================= THEME SHEET ================= */
+function renderThemeList(){
+  const wrap = document.getElementById("themeList");
+  wrap.innerHTML = "";
+  THEMES.forEach(t => {
+    const el = document.createElement("div");
+    el.className = "theme-opt dev" + (t.id === currentThemeId ? " active" : "");
+    el.innerHTML = `<span class="ic">${t.icon}</span><span class="lbl">${t.title}<small>${t.tag}</small></span><span class="chk">✓</span>`;
+    el.onclick = () => { switchTheme(t.id); closeThemeSheet(); };
+    wrap.appendChild(el);
+  });
+}
+function openThemeSheet(){ renderThemeList(); document.getElementById("themeSheet").classList.add("open"); }
+function closeThemeSheet(){ document.getElementById("themeSheet").classList.remove("open"); }
+
+function switchTheme(id){
+  if(id === currentThemeId) return;
+  currentThemeId = id;
+  localStorage.setItem("nr_theme", id);
+  currentTrackIdx = 0;
+  loadedKey = null;
+  const wasPlaying = isPlaying;
+  stopPlayback();
+  applyThemeVisuals();
+  if(wasPlaying) playCurrent();
+  if(!privateRoomActive){ currentRoom = id; joinRoom(); updateChatRoomLabel(); }
+}
+
+/* ================= THEME VISUALS ================= */
+function applyThemeVisuals(){
+  const t = theme();
+  document.documentElement.style.setProperty("--accent-c", t.accent);
+  document.getElementById("stage").style.background = t.heroBg;
+  document.getElementById("themeArt").innerHTML = t.svg;
+  document.getElementById("themeTitle").textContent = t.title;
+  document.getElementById("themeTag").textContent = t.tag;
+  document.getElementById("profileTheme").textContent = t.title;
+  document.getElementById("profileThemeCount").textContent = THEMES.length;
+  const tc = document.getElementById("themeColorMeta");
+  if(tc) tc.setAttribute("content", t.accent);
+  renderQuotes();
+}
+function renderQuotes(){
+  const t = theme();
+  const wrap = document.getElementById("quotesWrap");
+  wrap.innerHTML = "";
+  (t.quotes || []).forEach(q => {
+    const el = document.createElement("div");
+    el.className = "quote-card dev";
+    el.innerHTML = `"${escapeHtml(q[0])}"<span class="who">— ${escapeHtml(q[1])}</span>`;
+    wrap.appendChild(el);
+  });
+}
+
+/* ================= YOUTUBE PLAYER (IFrame API — real play/pause/resume) ================= */
+let ytPlayer = null;
+let ytReady = false;
+let pendingAutoplay = false;
+let loadedKey = null;
+function trackKey(){ return currentThemeId + "#" + currentTrackIdx; }
+
+function ensureYT(){
+  if(ytPlayer || window.__ytLoading) return;
+  window.__ytLoading = true;
+  const tag = document.createElement("script");
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.body.appendChild(tag);
+}
+window.onYouTubeIframeAPIReady = function(){
+  ytPlayer = new YT.Player("ytPlayer", {
+    height: "1", width: "1",
+    playerVars: { autoplay: 0, controls: 0, disablekb: 1, playsinline: 1, rel: 0 },
+    events: {
+      onReady: () => { ytReady = true; if(pendingAutoplay){ pendingAutoplay = false; playCurrent(); } },
+      onStateChange: onPlayerStateChange,
+      onError: () => { setStatus("Ye gaana nahi mila, agla try kar rahe hain…"); setTimeout(nextTrack, 900); }
+    }
+  });
+};
+function onPlayerStateChange(e){
+  if(!window.YT) return;
+  if(e.data === YT.PlayerState.PLAYING){
+    isPlaying = true; setStatus('<span class="eq"><i></i><i></i><i></i></span>Ab baj raha hai'); updatePlayUI();
+  } else if(e.data === YT.PlayerState.PAUSED){
+    isPlaying = false; setStatus("Pause — resume karne ke liye play dabao"); updatePlayUI();
+  } else if(e.data === YT.PlayerState.BUFFERING){
+    setStatus("Load ho raha hai…");
+  } else if(e.data === YT.PlayerState.ENDED){
+    nextTrack();
+  }
+}
+function setStatus(html){ document.getElementById("statusNote").innerHTML = html; }
+function updatePlayUI(){
+  document.getElementById("playBtn").textContent = isPlaying ? "⏸" : "▶";
+  document.getElementById("disc").classList.toggle("spinning", isPlaying);
+}
+
+/* Resolved video IDs are cached locally so the same song never burns
+   YouTube Data API quota twice on this device. */
+function ytCacheGet(query){
+  try{ return JSON.parse(localStorage.getItem("nr_ytcache") || "{}")[query] || null; }catch(e){ return null; }
+}
+function ytCacheSet(query, videoId){
+  try{
+    const c = JSON.parse(localStorage.getItem("nr_ytcache") || "{}");
+    c[query] = videoId;
+    localStorage.setItem("nr_ytcache", JSON.stringify(c));
+  }catch(e){}
+}
+
+function playCurrent(){
+  if(!(window.YOUTUBE_API_KEY || "").trim()){
+    setStatus("⚠️ YouTube API key set nahi hai — frontend/js/config.js kholo");
+    return;
+  }
+  const t = theme();
+  const tr = t.tracks[currentTrackIdx];
+  if(!ytReady){ pendingAutoplay = true; ensureYT(); setStatus("Player load ho raha hai…"); return; }
+
+  if(loadedKey === trackKey()){
+    ytPlayer.playVideo();
+    return;
+  }
+  loadedKey = trackKey();
+  const query = tr.t + " " + tr.a + " song";
+
+  if(tr.yt){
+    ytPlayer.loadVideoById(tr.yt);
+    return;
+  }
+  const cached = ytCacheGet(query);
+  if(cached){
+    ytPlayer.loadVideoById(cached);
+    return;
+  }
+  setStatus("Dhoonda ja raha hai…");
+  fetchAndLoad(query);
+}
+async function fetchAndLoad(query){
+  const key = window.YOUTUBE_API_KEY.trim();
+  const url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&type=video&videoEmbeddable=true&q="
+    + encodeURIComponent(query) + "&key=" + key;
+  try{
+    const res = await fetch(url);
+    const data = await res.json();
+    if(data.error){
+      const reason = (data.error.errors && data.error.errors[0] && data.error.errors[0].reason) || data.error.status || "";
+      if(reason === "quotaExceeded"){
+        setStatus("⚠️ YouTube API ka daily quota khatam ho gaya, kal try karo");
+      } else {
+        setStatus("⚠️ YouTube API key galat/invalid hai — config.js check karo");
+      }
+      return;
+    }
+    const vid = data.items && data.items[0] && data.items[0].id && data.items[0].id.videoId;
+    if(vid){
+      ytCacheSet(query, vid);
+      ytPlayer.loadVideoById(vid);
+    } else {
+      setStatus("Ye gaana YouTube par nahi mila, agla try karo…");
+    }
+  }catch(e){
+    setStatus("⚠️ Network/API error — dobara try karo");
+  }
+}
+function stopPlayback(){
+  if(ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
+  isPlaying = false;
+  updatePlayUI();
+  setStatus("Play dabao, gaana shuru");
+}
+function togglePlay(){
+  if(!ytReady || loadedKey !== trackKey()){ playCurrent(); return; }
+  const state = ytPlayer.getPlayerState();
+  if(state === 1){ ytPlayer.pauseVideo(); } else { ytPlayer.playVideo(); }
+}
+function nextTrack(){
+  const t = theme();
+  currentTrackIdx = (currentTrackIdx + 1) % t.tracks.length;
+  loadedKey = null;
+  if(isPlaying) playCurrent();
+}
+function prevTrack(){
+  const t = theme();
+  currentTrackIdx = (currentTrackIdx - 1 + t.tracks.length) % t.tracks.length;
+  loadedKey = null;
+  if(isPlaying) playCurrent();
+}
+
+/* ================= NAME MODAL / PROFILE ================= */
+function openNameModal(){ document.getElementById("nameModal").classList.add("open"); }
+function closeNameModal(){ document.getElementById("nameModal").classList.remove("open"); }
+function setName(){
+  const v = document.getElementById("nameInput").value.trim();
+  if(!v) return;
+  applyName(v);
+  closeNameModal();
+}
+function saveProfileName(){
+  const v = document.getElementById("profileNameInput").value.trim();
+  if(!v) return;
+  applyName(v);
+}
+function applyName(v){
+  myName = v.slice(0, 18);
+  localStorage.setItem("nr_name", myName);
+  updateProfileUI();
+  joinRoom();
+}
+function updateProfileUI(){
+  const n = myName || tempGuestName;
+  document.getElementById("profileName").textContent = n;
+  document.getElementById("avatarRing").textContent = n.charAt(0).toUpperCase();
+}
+
+/* ================= CHAT ================= */
+let socket = null;
+let socketReady = false;
+
+function initBackend(){
+  const url = (window.BACKEND_URL || "").trim();
+  if(url && window.io){
+    socket = io(url, { transports: ["websocket", "polling"] });
+    socket.on("connect", () => { socketReady = true; joinRoom(); });
+    socket.on("disconnect", () => { socketReady = false; });
+    socket.on("connect_error", () => { socketReady = false; });
+    socket.on("history", (arr) => renderMsgs(arr || []));
+    socket.on("chat message", (msg) => appendMsg(msg));
+    socket.on("online", (count) => {
+      document.getElementById("onlineCount").textContent = Math.max(count, 1);
+    });
+  }
+}
+function joinRoom(){
+  if(socketReady && socket){
+    socket.emit("join", { theme: currentRoom, name: displayName() });
+  }
+}
+function updateChatRoomLabel(){
+  const label = privateRoomActive
+    ? "🔒 Private: " + currentRoom.replace("priv_", "")
+    : theme().title;
+  document.getElementById("chatRoomLabel").textContent = label;
+}
+function renderMsgs(arr){
+  const msgsEl = document.getElementById("msgs");
+  msgsEl.innerHTML = "";
+  if(!arr.length){
+    msgsEl.innerHTML = '<div class="chat-empty">Sabse pehle message tum bhejo!</div>';
+    return;
+  }
+  arr.forEach(appendMsg);
+}
+function appendMsg(m){
+  const msgsEl = document.getElementById("msgs");
+  const empty = msgsEl.querySelector(".chat-empty");
+  if(empty) empty.remove();
+  const mine = m.name === displayName();
+  const el = document.createElement("div");
+  el.className = "msg" + (mine ? " me" : "");
+  el.innerHTML = `<span class="nm">${mine ? "Tum" : escapeHtml(m.name || "Guest")}</span>${escapeHtml(m.text || "")}`;
+  msgsEl.appendChild(el);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  if(!document.getElementById("view-chat").classList.contains("active") && !mine){
+    document.getElementById("chatDot").classList.add("has-new");
+  }
+}
+function escapeHtml(s){
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+function sendMsg(){
+  if(!myName){ openNameModal(); return; }
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
+  if(!text || !socketReady) return;
+  input.value = "";
+  socket.emit("chat message", { theme: currentRoom, name: myName, text: text });
+}
+
+/* ================= PRIVATE ROOMS ================= */
+function openRoomSheet(){
+  document.getElementById("currentRoomCard").style.display = privateRoomActive ? "block" : "none";
+  if(privateRoomActive) document.getElementById("currentRoomLabel").textContent = currentRoom.replace("priv_", "");
+  document.getElementById("roomSheet").classList.add("open");
+}
+function closeRoomSheet(){ document.getElementById("roomSheet").classList.remove("open"); }
+function genRoomCode(){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for(let i=0;i<6;i++) code += chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+function createPrivateRoom(){
+  const code = genRoomCode();
+  currentRoom = "priv_" + code;
+  privateRoomActive = true;
+  joinRoom();
+  updateChatRoomLabel();
+  renderMsgs([]);
+  document.getElementById("currentRoomCard").style.display = "block";
+  document.getElementById("currentRoomLabel").textContent = code;
+}
+function joinPrivateRoom(){
+  const v = document.getElementById("roomCodeInput").value.trim().toUpperCase();
+  if(!v) return;
+  currentRoom = "priv_" + v;
+  privateRoomActive = true;
+  joinRoom();
+  updateChatRoomLabel();
+  renderMsgs([]);
+  closeRoomSheet();
+}
+function leavePrivateRoom(){
+  privateRoomActive = false;
+  currentRoom = currentThemeId;
+  joinRoom();
+  updateChatRoomLabel();
+  renderMsgs([]);
+  closeRoomSheet();
+}
+
+/* ================= CONTACT (Made by Mukul Kumar) ================= */
+function contactMe(){
+  const msg = "Hi Mukul! Maine aapki Nostalgia Radio website dekhi — mujhe bhi aisi hi ek modern website banwani hai.";
+  window.open("https://wa.me/919572660377?text=" + encodeURIComponent(msg), "_blank");
+}
+
+/* ================= INIT ================= */
+applyThemeVisuals();
+updateChatRoomLabel();
+updateProfileUI();
+initBackend();
+
+/* ===== fx-engine.js (new motion / VFX behaviour) ===== */
+/* ================================================================
+   NOSTALGIA RADIO — FX ENGINE
+   Everything here is additive. It only ever: (a) listens to DOM
+   events/mutations, (b) toggles CSS classes, or (c) draws to its
+   own canvas/elements. It never redefines a function that already
+   exists in config.js / data.js / app.js, so the real app logic
+   (theme switching, YouTube playback, socket chat, private rooms)
+   keeps working exactly as it did before this file was added.
+   ================================================================ */
+(function(){
+  "use strict";
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function $(id){ return document.getElementById(id); }
+  function accent(){
+    return getComputedStyle(document.documentElement).getPropertyValue("--accent-c").trim() || "#c9a24b";
+  }
+
+  /* ---------------- splash intro ---------------- */
+  function runSplash(){
+    var splash = $("fxSplash");
+    if(!splash) return;
+    document.body.classList.add("fx-locked");
+    var wait = reduced ? 250 : 1300;
+    setTimeout(function(){
+      splash.classList.add("fx-hide");
+      document.body.classList.remove("fx-locked");
+    }, wait);
+  }
+
+  /* ---------------- ambient blobs (pure CSS, just inject) ---------------- */
+  function buildBackgroundLayers(){
+    var wrap = document.createElement("div");
+    wrap.className = "fx-bg-wrap";
+    wrap.setAttribute("aria-hidden", "true");
+    wrap.innerHTML = '<div class="fx-blob b1"></div><div class="fx-blob b2"></div><div class="fx-blob b3"></div>';
+    document.body.insertBefore(wrap, document.body.firstChild);
+  }
+
+  /* ---------------- particle canvas ---------------- */
+  function startParticles(){
+    var canvas = $("fxCanvas");
+    if(!canvas || reduced) return;
+    var ctx = canvas.getContext("2d");
+    var w, h, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var particles = [];
+    var COUNT = 34;
+
+    function resize(){
+      w = window.innerWidth; h = window.innerHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      canvas.style.width = w + "px"; canvas.style.height = h + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function spawn(p){
+      p = p || {};
+      p.x = Math.random() * w;
+      p.y = h + Math.random() * 40;
+      p.r = 1.2 + Math.random() * 2.6;
+      p.speed = .25 + Math.random() * .55;
+      p.sway = Math.random() * .6 - .3;
+      p.swaySeed = Math.random() * Math.PI * 2;
+      p.alpha = .18 + Math.random() * .35;
+      return p;
+    }
+    resize();
+    for(var i = 0; i < COUNT; i++){
+      var p = spawn({});
+      p.y = Math.random() * h;
+      particles.push(p);
+    }
+    var t = 0, rafId;
+    function tick(){
+      t += 0.016;
+      ctx.clearRect(0, 0, w, h);
+      var col = accent();
+      ctx.fillStyle = col;
+      for(var i = 0; i < particles.length; i++){
+        var p = particles[i];
+        p.y -= p.speed;
+        var sway = Math.sin(t + p.swaySeed) * p.sway * 18;
+        if(p.y < -10) spawn(p);
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x + sway, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      rafId = requestAnimationFrame(tick);
+    }
+    tick();
+    var resizeT;
+    window.addEventListener("resize", function(){
+      clearTimeout(resizeT);
+      resizeT = setTimeout(resize, 200);
+    });
+  }
+
+  /* ---------------- cursor glow (desktop only) ---------------- */
+  function startCursorGlow(){
+    if(reduced || !window.matchMedia("(pointer:fine)").matches) return;
+    var glow = $("fxCursorGlow");
+    if(!glow) return;
+    var tx = 0, ty = 0, cx = 0, cy = 0, active = false;
+    document.addEventListener("mousemove", function(e){
+      tx = e.clientX; ty = e.clientY;
+      if(!active){ active = true; glow.classList.add("on"); cx = tx; cy = ty; loop(); }
+    });
+    document.addEventListener("mouseleave", function(){ glow.classList.remove("on"); });
+    var running = false;
+    function loop(){
+      if(running) return;
+      running = true;
+      (function step(){
+        cx += (tx - cx) * .18; cy += (ty - cy) * .18;
+        glow.style.transform = "translate(" + cx + "px," + cy + "px) translate(-50%,-50%)";
+        requestAnimationFrame(step);
+      })();
+    }
+  }
+
+  /* ---------------- ripple on interactive elements ---------------- */
+  function startRipples(){
+    var SEL = ".tbtn, .nav-btn, .btn-primary, .btn-ghost, .btn-contact, .room-btn, .chat-input button, .theme-opt, .name-card button";
+    document.addEventListener("click", function(e){
+      var el = e.target.closest ? e.target.closest(SEL) : null;
+      if(!el) return;
+      var rect = el.getBoundingClientRect();
+      var size = Math.max(rect.width, rect.height) * 1.15;
+      var span = document.createElement("span");
+      span.className = "ripple-span";
+      span.style.width = span.style.height = size + "px";
+      span.style.left = (e.clientX - rect.left - size / 2) + "px";
+      span.style.top = (e.clientY - rect.top - size / 2) + "px";
+      el.appendChild(span);
+      setTimeout(function(){ span.remove(); }, 650);
+    }, true);
+  }
+
+  /* ---------------- bottom-nav sliding indicator ---------------- */
+  function startNavIndicator(){
+    var nav = document.querySelector(".bottom-nav");
+    var indicator = $("navIndicator");
+    if(!nav || !indicator) return;
+    function place(){
+      var activeBtn = nav.querySelector(".nav-btn.active");
+      if(!activeBtn) return;
+      var navRect = nav.getBoundingClientRect();
+      var btnRect = activeBtn.getBoundingClientRect();
+      indicator.style.width = btnRect.width + "px";
+      indicator.style.transform = "translateX(" + (btnRect.left - navRect.left) + "px)";
+      indicator.classList.add("on");
+    }
+    place();
+    new MutationObserver(place).observe(nav, { subtree: true, attributes: true, attributeFilter: ["class"] });
+    window.addEventListener("resize", place);
+  }
+
+  /* ---------------- theme-change radial sweep ---------------- */
+  function startThemeSweep(){
+    var list = $("themeList");
+    var sweep = $("fxThemeSweep");
+    if(!list || !sweep) return;
+    list.addEventListener("click", function(e){
+      var opt = e.target.closest ? e.target.closest(".theme-opt") : null;
+      if(!opt) return;
+      sweep.style.setProperty("--sx", (e.clientX / window.innerWidth * 100) + "%");
+      sweep.style.setProperty("--sy", (e.clientY / window.innerHeight * 100) + "%");
+      sweep.classList.remove("fire");
+      void sweep.offsetWidth;
+      sweep.classList.add("fire");
+    });
+  }
+
+  /* ---------------- disc-driven waveform + play sparkle ---------------- */
+  function startDiscReactions(){
+    var disc = $("disc");
+    var wave = $("waveBar");
+    if(!disc) return;
+    var wasSpinning = disc.classList.contains("spinning");
+    function onChange(){
+      var spinning = disc.classList.contains("spinning");
+      if(wave) wave.classList.toggle("playing", spinning);
+      if(spinning && !wasSpinning && !reduced){
+        var r = disc.getBoundingClientRect();
+        burst(r.left + r.width / 2, r.top + r.height / 2, 10);
+      }
+      wasSpinning = spinning;
+    }
+    new MutationObserver(onChange).observe(disc, { attributes: true, attributeFilter: ["class"] });
+    onChange();
+  }
+
+  /* ---------------- tilt on theme art (fine pointers only) ---------------- */
+  function startTilt(){
+    var art = $("themeArt");
+    if(!art || reduced || !window.matchMedia("(pointer:fine)").matches) return;
+    art.style.transform = "perspective(700px)";
+    art.addEventListener("mousemove", function(e){
+      var r = art.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - .5;
+      var py = (e.clientY - r.top) / r.height - .5;
+      art.style.transform = "perspective(700px) rotateX(" + (-py * 8) + "deg) rotateY(" + (px * 10) + "deg)";
+    });
+    art.addEventListener("mouseleave", function(){
+      art.style.transform = "perspective(700px) rotateX(0) rotateY(0)";
+    });
+  }
+
+  /* ---------------- confetti-style spark burst ---------------- */
+  function burst(x, y, count){
+    if(reduced) return;
+    var col = accent();
+    for(var i = 0; i < count; i++){
+      var s = document.createElement("span");
+      s.className = "fx-spark";
+      var size = 4 + Math.random() * 5;
+      var angle = Math.random() * Math.PI * 2;
+      var dist = 40 + Math.random() * 70;
+      s.style.width = s.style.height = size + "px";
+      s.style.left = x + "px"; s.style.top = y + "px";
+      s.style.background = Math.random() > .4 ? col : "#fff";
+      s.style.setProperty("--dx", Math.cos(angle) * dist + "px");
+      s.style.setProperty("--dy", Math.sin(angle) * dist + "px");
+      s.style.setProperty("--dur", (600 + Math.random() * 500) + "ms");
+      document.body.appendChild(s);
+      (function(el){ setTimeout(function(){ el.remove(); }, 1200); })(s);
+    }
+  }
+  function wireCelebrations(){
+    var sendBtn = document.querySelector(".chat-input button");
+    if(sendBtn) sendBtn.addEventListener("click", function(){
+      var r = sendBtn.getBoundingClientRect();
+      burst(r.left + r.width / 2, r.top + r.height / 2, 12);
+    });
+    var roomBtns = document.querySelectorAll('.room-card .btn-primary');
+    roomBtns.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var r = btn.getBoundingClientRect();
+        burst(r.left + r.width / 2, r.top + r.height / 2, 16);
+      });
+    });
+  }
+
+  /* ---------------- view-activate hooks (about reveal, profile count-up) ---------------- */
+  function watchViewActivate(id, onActive, onInactive){
+    var el = $(id);
+    if(!el) return;
+    var was = el.classList.contains("active");
+    new MutationObserver(function(){
+      var is = el.classList.contains("active");
+      if(is && !was) requestAnimationFrame(onActive);
+      if(!is && was && onInactive) onInactive();
+      was = is;
+    }).observe(el, { attributes: true, attributeFilter: ["class"] });
+    if(was) onActive();
+  }
+  function startViewHooks(){
+    watchViewActivate("view-about",
+      function(){ $("view-about").classList.add("fx-revealed"); },
+      function(){ $("view-about").classList.remove("fx-revealed"); }
+    );
+    watchViewActivate("view-profile", function(){
+      var el = $("profileThemeCount");
+      if(!el || reduced) return;
+      var target = parseInt(el.textContent, 10);
+      if(isNaN(target)) return;
+      var from = 0, start = null, dur = 550;
+      function step(ts){
+        if(start === null) start = ts;
+        var p = Math.min(1, (ts - start) / dur);
+        el.textContent = Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3)));
+        if(p < 1) requestAnimationFrame(step);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  /* ---------------- boot ---------------- */
+  function boot(){
+    buildBackgroundLayers();
+    runSplash();
+    startParticles();
+    startCursorGlow();
+    startRipples();
+    startNavIndicator();
+    startThemeSweep();
+    startDiscReactions();
+    startTilt();
+    wireCelebrations();
+    startViewHooks();
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
